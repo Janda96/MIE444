@@ -3,12 +3,15 @@
 
 // Custom Includes
 #include "Types.h"
+#include "Actuators.h"
 
 class Sensor
 {
 public:
 
   int readValue();
+
+  unsigned long timePulse(int value);
 
   Sensor(unsigned pinInd, bool isAnalog);
 
@@ -19,15 +22,19 @@ private: /* DATA */
   bool isAnalog;
 };
 
-// NOTE: Add reading to distance mapping as input!
-class UltraSonic : private Sensor
+class UltraSonic
 {
 public:
 
-  UltraSonic(unsigned pinInd);
+  float getDist();
+
+  UltraSonic(unsigned trigPin, unsigned echoPin);
   
 private:
 
+  Sensor echo;
+  Actuator trig;
+  
 };
 
 class IR : private Sensor
