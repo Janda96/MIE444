@@ -1,13 +1,13 @@
-#include "Actuators.h"
+#include "IO.h"
 
 // Standard Includes
 
 // Custom Includes
 #include "Arduino.h"
 
-static const unsigned pwmPins[6] = {3, 5, 6, 9, 10, 11};
+static const unsigned pwmPins[6] = {1, 5, 6, 7, 15, 16, 17, 18, 23, 24, 25, 26, 38, 39, 40};
 
-Actuator::Actuator(unsigned pinInd, bool isPWM) :
+Output::Output(unsigned pinInd, bool isPWM) :
 pinInd(pinInd),
 isPWM(isPWM)
 {
@@ -30,7 +30,7 @@ isPWM(isPWM)
   }
 }
 
-void Actuator::set(int val)
+void Output::set(int val)
 {
   if (isPWM)
   {
@@ -40,4 +40,21 @@ void Actuator::set(int val)
   {
     digitalWrite(pinInd, static_cast<bool>(val));
   }
+}
+
+int Input::readValue()
+{
+  return isAnalog ? analogRead(pinInd) : digitalRead(pinInd);
+}
+
+unsigned long Input::timePulse(int value)
+{
+  return pulseIn(pinInd, value);
+}
+
+Input::Input(unsigned pinInd, bool isAnalog) :
+pinInd(pinInd),
+isAnalog(isAnalog)
+{
+  pinMode(pinInd, INPUT);
 }
