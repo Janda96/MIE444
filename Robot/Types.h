@@ -20,11 +20,3 @@ struct point
   float x;
   float y;
 };
-
-struct DistSensorMap
-{
-  int minDist;
-  int minDistVal;
-  int maxDist;
-  int maxDistVal;
-};
