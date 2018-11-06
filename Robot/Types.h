@@ -11,12 +11,20 @@ enum ErrorCode
 
 enum Direction
 {
-  Forward,
-  Backward
+  Forward = 1,
+  Backward = -1
 };
 
 struct point
 {
   float x;
   float y;
+};
+
+struct DistSensorMap
+{
+  int minDist;
+  int minDistVal;
+  int maxDist;
+  int maxDistVal;
 };

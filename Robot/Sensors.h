@@ -1,9 +1,36 @@
 #pragma once
 // Standard Includes
+#include <SparkFun_TB6612.h>
 
 // Custom Includes
 #include "Types.h"
 #include "Actuators.h"
+
+class DriveTrain
+{
+public:
+
+  void Drive(char vel, Direction d);
+
+  void Drive(char vel, int dist, Direction d);
+
+  void Stop();
+
+  void Turn(float angle);
+
+  DriveTrain(Motor L, Motor R, float rad);
+
+private:
+
+  // Control loop to make sure driving straight
+  void DriveStraight();
+
+private: /* DATA */
+  
+  Motor L;
+  Motor R;
+  float rad;
+};
 
 class Sensor
 {
@@ -34,7 +61,6 @@ private:
 
   Sensor echo;
   Actuator trig;
-  
 };
 
 class IR : private Sensor
@@ -47,10 +73,10 @@ private:
 
 };
 
-class IRDistance : private Sensor
+class IRDist : private Sensor
 {
 public:
-
+  
 private:
 
 };
