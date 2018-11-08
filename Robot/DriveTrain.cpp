@@ -200,7 +200,9 @@ void DriveTrain::Turn(float angle)
     // Read sensors
     // currDist = 
 
-    delay(3000);
+    // Timebased turn
+    unsigned timeDelay = static_cast<unsigned>(angle * 1000);
+    delay(timeDelay);
     break;
   }
   
