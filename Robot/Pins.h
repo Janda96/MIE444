@@ -40,6 +40,14 @@
 #define PWMB 7
 #define STBY 13
 
+// LCD
+#define LCD_RS 36
+#define LCD_E  37
+#define LCD_D4 42
+#define LCD_D5 43
+#define LCD_D6 44
+#define LCD_D7 45
+
 // Servo
 #define SERVO_PWM 5
 
