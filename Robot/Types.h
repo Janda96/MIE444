@@ -7,6 +7,8 @@ enum ErrorCode
 {
   OK = 0,
   InvalidInput = -1,
+  ObstacleDetected = -2,
+  Blocked = -3,
 };
 
 enum Direction

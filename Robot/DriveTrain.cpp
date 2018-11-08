@@ -6,11 +6,135 @@
 // Custom Includes
 #include "Arduino.h"
 
-DriveTrain::DriveTrain(Motor L, Motor R, float rad) :
+// Preprocessor definitions
+#define MAX_SPEED 100
+#define DEFAULT_SPEED 50
+#define OBSTACLE_DIST 50.f
+#define DEG2RAD 180.f / 3.14f
+
+DriveTrain::DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase) :
 L(L),
 R(R),
-rad(rad)
+US(US),
+wheelbase(wheelbase)
 {
+  ResetSpeed();
+}
+
+ErrorCode DriveTrain::Drive()
+{
+    while (true)
+    {
+      // [0] -> Clear any obstacles
+      m_err = ClearObstacle();
+      if (m_err != OK)
+      {
+          Stop();
+          return m_err;
+      }
+    
+      // [1] -> Find an ultrasonic sensor to follow
+      UltraSonic* follower;
+      m_err = FindFollower(follower);
+      if (m_err != OK)
+      {
+          Stop();
+          return m_err;
+      }
+  
+      // [2] -> Follow wall so long as no obstacle detected
+      float wallDist;
+      while (!isObsticalDetected())
+      {
+          wallDist = follower->getDist();
+          if (wallDist > 10.f)
+          {
+              Stop();
+              break;
+          }
+          
+          UpdateSpeed(wallDist);
+          delay(500); // Might be unnecessary
+      }
+    }
+    
+    return m_err;
+}
+
+ErrorCode DriveTrain::FindFollower(UltraSonic* follower)
+{
+    float lDist = US.L->getDist();
+    float rDist = US.R->getDist();
+
+    // Drive until a wall is found
+    while (lDist > 50.f && rDist > 50.f)
+    {
+        // Drive forward
+        Drive(DEFAULT_SPEED, Forward);
+        delay(1000);
+
+        // Make sure robot doesnt hit anything
+        if (isObsticalDetected())
+        {
+          Stop();
+          m_err = ClearObstacle();
+          if (m_err != OK)
+          {
+            return m_err;
+          }
+        }
+
+        // Check distances
+        lDist = US.L->getDist();
+        rDist = US.R->getDist();
+    }
+    
+    if (rDist < 50.f)
+    {
+      follower = US.R;
+    }
+    else if(lDist < 50.f)
+    {
+      follower = US.L;
+    }
+
+    return OK;
+}
+
+ErrorCode DriveTrain::ClearObstacle()
+{
+    // Take measurements about robots' surroundings
+    float bDist = US.B->getDist();
+    float lDist = US.L->getDist();
+    float rDist = US.R->getDist();
+    
+    // Check if cannot go forward
+    // Will need to turn to free spot in this case
+    if (isObsticalDetected())
+    {
+        if (lDist > 50.f)
+        {
+          Turn(-90.f);
+        }
+        else if (rDist > 50.f)
+        {
+          Turn(90.f);
+        }
+        else if (bDist > 50.f)
+        {
+          Turn(180.f);
+        }
+        else
+        {
+          return Blocked;
+        }
+    }
+    return OK;
+}
+
+bool DriveTrain::isObsticalDetected()
+{
+    return US.F->getDist() < OBSTACLE_DIST;
 }
 
 void DriveTrain::Drive(char vel, Direction d)
@@ -27,40 +151,54 @@ void DriveTrain::Drive(char vel, int dist, Direction d)
   {
     // Update distance
     // currDist = 
+    
     delay(5000);
     break;
   }
   Stop();
 }
 
+void DriveTrain::UpdateSpeed(float wallDist)
+{
+  // Calculate the correct 
+  float residual = targetDist - wallDist;
+  rSpeed += k * residual;
+  lSpeed -= k * residual;
+
+  // Limit max speed
+  rSpeed = max(rSpeed, MAX_SPEED);
+  lSpeed = max(lSpeed, MAX_SPEED);
+
+  L.drive(lSpeed);
+  R.drive(rSpeed);
+}
+
+void DriveTrain::ResetSpeed()
+{
+  rSpeed = DEFAULT_SPEED;
+  lSpeed = DEFAULT_SPEED;
+}
+
 void DriveTrain::Turn(float angle)
 {
   static int turnSpeed = 50;
+
+  angle = angle * DEG2RAD;
 
   // Find the direction the wheels have to turn
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
 
-  float dist = rad * abs(angle);
-  float rightDist = 0.f;
-  float leftDist = 0.f;
+  float turnDist = wheelbase / 2.f * abs(angle);
+  float currDist = 0.f;
 
   // Turn loop
-  L.drive(lSpeed);
+  L.drive(lSpeed);  // NOTE: Might need to adjust speeds for specific sides
   R.drive(rSpeed);
-  while( rightDist < dist && leftDist < dist)
+  while( currDist < turnDist)
   {
     // Read sensors
-    // rightDist = 
-    // leftDist = 
-    if (rightDist > dist) 
-    {
-      R.brake();
-    }
-    if (leftDist > dist)
-    {
-      L.brake();
-    }
+    // currDist = 
 
     delay(3000);
     break;

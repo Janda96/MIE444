@@ -5,7 +5,7 @@
 // Custom Includes
 #include "Arduino.h"
 
-static const unsigned pwmPins[6] = {1, 5, 6, 7, 15, 16, 17, 18, 23, 24, 25, 26, 38, 39, 40};
+static const unsigned pwmPins[] = {1, 5, 6, 7, 15, 16, 17, 18, 23, 24, 25, 26, 38, 39, 40};
 
 Output::Output(unsigned pinInd, bool isPWM) :
 pinInd(pinInd),
