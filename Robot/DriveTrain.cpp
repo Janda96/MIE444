@@ -7,9 +7,10 @@
 #include "Arduino.h"
 
 // Preprocessor definitions
-#define MAX_SPEED 100
-#define DEFAULT_SPEED 50
-#define OBSTACLE_DIST 50.f
+#define MAX_SPEED 150
+#define DEFAULT_SPEED 75
+#define OBSTACLE_DIST 200.f
+#define WALL_DETECT_DIST 400.f
 #define DEG2RAD 180.f / 3.14f
 
 DriveTrain::DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase) :
@@ -47,14 +48,14 @@ ErrorCode DriveTrain::Drive()
       while (!isObsticalDetected())
       {
           wallDist = follower->getDist();
-          if (wallDist > 10.f)
+          if (wallDist > WALL_DETECT_DIST)
           {
               Stop();
               break;
           }
           
           UpdateSpeed(wallDist);
-          delay(500); // Might be unnecessary
+          delay(100); // Might be unnecessary
       }
     }
     
@@ -94,6 +95,7 @@ ErrorCode DriveTrain::FindFollower(UltraSonic* follower)
       follower = &(US.R);
     }
     else if(lDist < 50.f)
+    else if(lDist < WALL_DETECT_DIST)
     {
       follower = &(US.L);
     }
@@ -112,15 +114,15 @@ ErrorCode DriveTrain::ClearObstacle()
     // Will need to turn to free spot in this case
     if (isObsticalDetected())
     {
-        if (lDist > 50.f)
+        if (lDist > OBSTACLE_DIST)
         {
           Turn(-90.f);
         }
-        else if (rDist > 50.f)
+        else if (rDist > OBSTACLE_DIST)
         {
           Turn(90.f);
         }
-        else if (bDist > 50.f)
+        else if (bDist > OBSTACLE_DIST)
         {
           Turn(180.f);
         }
@@ -161,24 +163,31 @@ void DriveTrain::Drive(int vel, int dist, Direction d)
 void DriveTrain::UpdateSpeed(float wallDist)
 {
   // Calculate the derivative component
-  float currTime = millis();
-  float d = (wallDist - prevDist) / (currTime - prevTime);
+  unsigned long currTime = millis();
+  float d = (wallDist - prevDist) / static_cast<float>(currTime - prevTime);
   prevTime = currTime;
   
   // Calculate the proportion component
   float p = targetDist - wallDist;
 
-  // Update motor speeds based on control input
+  // Find speed update and limit
   float speedUpdate = kp * p + kd * d;
-  rSpeed += speedUpdate;
-  lSpeed -= speedUpdate;
-
+  speedUpdate = min(speedUpdate, 10);
+  
+  // Update motor speeds based on control input
+  rSpeed = DEFAULT_SPEED - speedUpdate;
+  lSpeed = DEFAULT_SPEED + speedUpdate;
+  
   // Limit max speed
-  rSpeed = max(rSpeed, MAX_SPEED);
-  lSpeed = max(lSpeed, MAX_SPEED);
+  rSpeed = min(rSpeed, MAX_SPEED);
+  lSpeed = min(lSpeed, MAX_SPEED);
 
-  L.drive(lSpeed);
-  R.drive(rSpeed);
+  // limit min speed
+  rSpeed = max(rSpeed, 0);
+  lSpeed = max(lSpeed, 0);
+
+  L.drive(-lSpeed);
+  R.drive(-rSpeed);
 }
 
 void DriveTrain::ResetSpeed()
@@ -189,13 +198,15 @@ void DriveTrain::ResetSpeed()
 
 void DriveTrain::Turn(float angle)
 {
-  static int turnSpeed = 50;
+  static int turnSpeed = 100;
 
   angle = angle * DEG2RAD;
 
   // Find the direction the wheels have to turn
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
+
+  float DelayGain = angle > 0 ? 0.14f : 0.14f;
 
   float turnDist = wheelbase / 2.f * abs(angle);
   float currDist = 0.f;
@@ -209,7 +220,7 @@ void DriveTrain::Turn(float angle)
     // currDist = 
 
     // Timebased turn
-    unsigned timeDelay = static_cast<unsigned>(angle * 1000);
+    unsigned timeDelay = static_cast<unsigned>(abs(angle) * DelayGain);
     delay(timeDelay);
     break;
   }

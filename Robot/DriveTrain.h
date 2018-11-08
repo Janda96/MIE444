@@ -44,13 +44,13 @@ private: /* DATA */
   float wheelbase;    // Distance between wheels
 
   // Control parameters
-  float targetDist = 50.f;  // Target distance to follow wall
-  float kp = 0.1f;          // Proportional gain
-  float kd = 0.1f;          // Differential gain
+  float targetDist = 100.f;  // Target distance to follow wall
+  float kp = 0.3f;          // Proportional gain
+  float kd = 7.f;          // Differential gain
   
   // Derivative Estimate
   float prevDist;
-  float prevTime;
+  unsigned long prevTime;
 
   // Control Values
   int rSpeed;              // Right motor speed
