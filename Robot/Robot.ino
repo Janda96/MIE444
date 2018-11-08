@@ -4,6 +4,7 @@
 
 // Standard Includes
 #include <Servo.h>
+#include <LiquidCrystal.h>
 
 // Custom Includes
 #include "DriveTrain.h"
@@ -11,6 +12,9 @@
 #include "Pins.h"
 #include "IO.h"
 #include "Types.h"
+
+// LCD
+LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 
 // Motors
 Motor leftMotor = Motor(AIN1, AIN2, PWMA, 1, STBY);
@@ -33,6 +37,7 @@ ErrorCode err = OK;
 
 void setup() 
 {
+  lcd.begin(16, 2);
   Serial.begin(9600);
 }
 
@@ -45,6 +50,9 @@ void loop()
   }
   else if (err == Blocked)
   {
-    while (true);
+    while (true)
+    {
+      Serial.println("I'm stuck!!");
+    }
   }
 }
