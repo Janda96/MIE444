@@ -13,9 +13,9 @@ public:
 
   ErrorCode Drive();
   
-  void Drive(char vel, Direction d);
+  void Drive(int vel, Direction d);
 
-  void Drive(char vel, int dist, Direction d);
+  void Drive(int vel, int dist, Direction d);
 
   void Stop();
 
@@ -45,9 +45,16 @@ private: /* DATA */
 
   // Control parameters
   float targetDist = 50.f;  // Target distance to follow wall
-  float k = 0.1f;           // Proportional gain
-  char rSpeed;              // Right motor speed
-  char lSpeed;              // Left motor speed
+  float kp = 0.1f;          // Proportional gain
+  float kd = 0.1f;          // Differential gain
+  
+  // Derivative Estimate
+  float prevDist;
+  float prevTime;
+
+  // Control Values
+  int rSpeed;              // Right motor speed
+  int lSpeed;              // Left motor speed
 
   ErrorCode m_err = OK;
 };

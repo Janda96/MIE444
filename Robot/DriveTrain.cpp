@@ -137,13 +137,13 @@ bool DriveTrain::isObsticalDetected()
     return US.F.getDist() < OBSTACLE_DIST;
 }
 
-void DriveTrain::Drive(char vel, Direction d)
+void DriveTrain::Drive(int vel, Direction d)
 {
   L.drive(d * vel);
   R.drive(d * vel);
 }
 
-void DriveTrain::Drive(char vel, int dist, Direction d)
+void DriveTrain::Drive(int vel, int dist, Direction d)
 {
   Drive(vel, d);
   float currDist = 0.f;
@@ -160,10 +160,18 @@ void DriveTrain::Drive(char vel, int dist, Direction d)
 
 void DriveTrain::UpdateSpeed(float wallDist)
 {
-  // Calculate the correct 
-  float residual = targetDist - wallDist;
-  rSpeed += k * residual;
-  lSpeed -= k * residual;
+  // Calculate the derivative component
+  float currTime = millis();
+  float d = (wallDist - prevDist) / (currTime - prevTime);
+  prevTime = currTime;
+  
+  // Calculate the proportion component
+  float p = targetDist - wallDist;
+
+  // Update motor speeds based on control input
+  float speedUpdate = kp * p + kd * d;
+  rSpeed += speedUpdate;
+  lSpeed -= speedUpdate;
 
   // Limit max speed
   rSpeed = max(rSpeed, MAX_SPEED);
