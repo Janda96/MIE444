@@ -35,8 +35,9 @@ ErrorCode DriveTrain::Drive()
       }
     
       // [1] -> Find an ultrasonic sensor to follow
+      bool isLeft;
       UltraSonic* follower;
-      m_err = FindFollower(follower);
+      m_err = FindFollower(follower, isLeft);
       if (m_err != OK)
       {
           Stop();
@@ -54,7 +55,7 @@ ErrorCode DriveTrain::Drive()
               break;
           }
           
-          UpdateSpeed(wallDist);
+          UpdateSpeed(wallDist, false);
           delay(100); // Might be unnecessary
       }
     }
@@ -62,13 +63,13 @@ ErrorCode DriveTrain::Drive()
     return m_err;
 }
 
-ErrorCode DriveTrain::FindFollower(UltraSonic* follower)
+ErrorCode DriveTrain::FindFollower(UltraSonic* follower, bool& isLeft)
 {
     float lDist = US.L.getDist();
     float rDist = US.R.getDist();
 
     // Drive until a wall is found
-    while (lDist > 50.f && rDist > 50.f)
+    while (lDist > WALL_DETECT_DIST && rDist > WALL_DETECT_DIST)
     {
         // Drive forward
         Drive(DEFAULT_SPEED, Forward);
@@ -90,13 +91,14 @@ ErrorCode DriveTrain::FindFollower(UltraSonic* follower)
         rDist = US.R.getDist();
     }
     
-    if (rDist < 50.f)
+    if (rDist < WALL_DETECT_DIST)
     {
+      isLeft = false;
       follower = &(US.R);
     }
-    else if(lDist < 50.f)
     else if(lDist < WALL_DETECT_DIST)
     {
+      isLeft = true;
       follower = &(US.L);
     }
 
@@ -116,11 +118,11 @@ ErrorCode DriveTrain::ClearObstacle()
     {
         if (lDist > OBSTACLE_DIST)
         {
-          Turn(-90.f);
+          Turn(90.f);
         }
         else if (rDist > OBSTACLE_DIST)
         {
-          Turn(90.f);
+          Turn(-90.f);
         }
         else if (bDist > OBSTACLE_DIST)
         {
@@ -160,7 +162,7 @@ void DriveTrain::Drive(int vel, int dist, Direction d)
   Stop();
 }
 
-void DriveTrain::UpdateSpeed(float wallDist)
+void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 {
   // Calculate the derivative component
   unsigned long currTime = millis();
@@ -175,8 +177,16 @@ void DriveTrain::UpdateSpeed(float wallDist)
   speedUpdate = min(speedUpdate, 10);
   
   // Update motor speeds based on control input
-  rSpeed = DEFAULT_SPEED - speedUpdate;
-  lSpeed = DEFAULT_SPEED + speedUpdate;
+  if (isLeft)
+  {
+      rSpeed = DEFAULT_SPEED - speedUpdate;
+      lSpeed = DEFAULT_SPEED + speedUpdate;
+  }
+  else
+  {
+      rSpeed = DEFAULT_SPEED + speedUpdate;
+      lSpeed = DEFAULT_SPEED - speedUpdate;
+  }
   
   // Limit max speed
   rSpeed = min(rSpeed, MAX_SPEED);

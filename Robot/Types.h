@@ -14,8 +14,8 @@ enum ErrorCode
 
 enum Direction
 {
-  Forward = 1,
-  Backward = -1
+  Forward = -1,
+  Backward = 1
 };
 
 struct point

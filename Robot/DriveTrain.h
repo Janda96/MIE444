@@ -25,14 +25,14 @@ public:
 
 private:
 
-  ErrorCode FindFollower(UltraSonic* follower);
+  ErrorCode FindFollower(UltraSonic* follower, bool& isLeft);
 
   ErrorCode ClearObstacle();
 
   bool isObsticalDetected();
   
   // Control loop to make sure driving straight
-  void UpdateSpeed(float wallDist);
+  void UpdateSpeed(float wallDist, bool isLeft);
 
   void ResetSpeed();
 
