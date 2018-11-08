@@ -1,5 +1,6 @@
 #pragma once
 // Standard Includes
+#include <Arduino.h>
 
 // Custom Includes
 

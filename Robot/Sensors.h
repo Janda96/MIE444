@@ -23,10 +23,10 @@ private:
 // Ultrasonic array on robot
 struct UltraSonicArray
 {
-  UltraSonic* F;   // Front facing ultrasonic sensor
-  UltraSonic* B;   // Back facing ultrasonic sensor
-  UltraSonic* R;   // Right facing ultrasonic sensor
-  UltraSonic* L;   // Left facing ultrasonic sensor
+  UltraSonic F;   // Front facing ultrasonic sensor
+  UltraSonic B;   // Back facing ultrasonic sensor
+  UltraSonic R;   // Right facing ultrasonic sensor
+  UltraSonic L;   // Left facing ultrasonic sensor
 };
 
 class IR : private Input

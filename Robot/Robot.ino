@@ -23,11 +23,7 @@ UltraSonic US_Right(US3_T, US3_E);
 UltraSonic US_Left(US4_T, US4_E);
 
 // Ultrasonic Sensor Array
-UltraSonicArray US;
-//US.F = &US_Front;
-//US.B = &US_Back;
-//US.R = &US_Right;
-//US.L = &US_Left;
+UltraSonicArray US = {US_Front, US_Back, US_Right, US_Left};
 
 // Drivetrain
 DriveTrain chasis(leftMotor, rightMotor, US, 10);
@@ -42,7 +38,6 @@ void setup()
 
 void loop() 
 {
-
   err = chasis.Drive();
   if (err == ObstacleDetected)
   {

@@ -63,8 +63,8 @@ ErrorCode DriveTrain::Drive()
 
 ErrorCode DriveTrain::FindFollower(UltraSonic* follower)
 {
-    float lDist = US.L->getDist();
-    float rDist = US.R->getDist();
+    float lDist = US.L.getDist();
+    float rDist = US.R.getDist();
 
     // Drive until a wall is found
     while (lDist > 50.f && rDist > 50.f)
@@ -85,17 +85,17 @@ ErrorCode DriveTrain::FindFollower(UltraSonic* follower)
         }
 
         // Check distances
-        lDist = US.L->getDist();
-        rDist = US.R->getDist();
+        lDist = US.L.getDist();
+        rDist = US.R.getDist();
     }
     
     if (rDist < 50.f)
     {
-      follower = US.R;
+      follower = &(US.R);
     }
     else if(lDist < 50.f)
     {
-      follower = US.L;
+      follower = &(US.L);
     }
 
     return OK;
@@ -104,9 +104,9 @@ ErrorCode DriveTrain::FindFollower(UltraSonic* follower)
 ErrorCode DriveTrain::ClearObstacle()
 {
     // Take measurements about robots' surroundings
-    float bDist = US.B->getDist();
-    float lDist = US.L->getDist();
-    float rDist = US.R->getDist();
+    float bDist = US.B.getDist();
+    float lDist = US.L.getDist();
+    float rDist = US.R.getDist();
     
     // Check if cannot go forward
     // Will need to turn to free spot in this case
@@ -134,7 +134,7 @@ ErrorCode DriveTrain::ClearObstacle()
 
 bool DriveTrain::isObsticalDetected()
 {
-    return US.F->getDist() < OBSTACLE_DIST;
+    return US.F.getDist() < OBSTACLE_DIST;
 }
 
 void DriveTrain::Drive(char vel, Direction d)
