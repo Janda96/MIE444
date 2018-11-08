@@ -44,15 +44,10 @@ void setup()
 void loop() 
 {
   err = chasis.Drive();
-  if (err == ObstacleDetected)
+  if (err == Blocked)
   {
-    chasis.Turn(90.f);
+    lcd.print("I'm Stuck!!");
+    while (true);
   }
-  else if (err == Blocked)
-  {
-    while (true)
-    {
-      Serial.println("I'm stuck!!");
-    }
-  }
+  while (true);
 }

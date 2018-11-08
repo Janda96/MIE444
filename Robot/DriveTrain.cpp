@@ -73,7 +73,6 @@ ErrorCode DriveTrain::FindFollower(UltraSonic* follower, bool& isLeft)
     {
         // Drive forward
         Drive(DEFAULT_SPEED, Forward);
-        delay(1000);
 
         // Make sure robot doesnt hit anything
         if (isObsticalDetected())
@@ -96,13 +95,35 @@ ErrorCode DriveTrain::FindFollower(UltraSonic* follower, bool& isLeft)
       isLeft = false;
       follower = &(US.R);
     }
-    else if(lDist < WALL_DETECT_DIST)
+    else
     {
       isLeft = true;
       follower = &(US.L);
     }
 
+    // Make robot parrallel to wall
+    MakeWallParallel(follower);
+
     return OK;
+}
+
+void DriveTrain::MakeWallParallel(UltraSonic* follower)
+{
+    Turn(-40);
+    L.drive(100);
+    R.drive(-100);
+
+    float dist = follower->getDist();
+    float currDist = dist - 10.f;
+
+    delay(200);
+    while (dist > currDist)
+    {
+      currDist = follower->getDist();
+    }
+    
+    Turn(-20);
+    Stop();
 }
 
 ErrorCode DriveTrain::ClearObstacle()

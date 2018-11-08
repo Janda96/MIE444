@@ -27,6 +27,8 @@ private:
 
   ErrorCode FindFollower(UltraSonic* follower, bool& isLeft);
 
+  void MakeWallParallel(UltraSonic* follower);
+
   ErrorCode ClearObstacle();
 
   bool isObsticalDetected();
