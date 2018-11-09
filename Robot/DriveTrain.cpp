@@ -10,7 +10,7 @@
 #define MAX_SPEED 150
 #define DEFAULT_SPEED_R 100
 #define DEFAULT_SPEED_L (0.95f)*DEFAULT_SPEED_R
-#define OBSTACLE_DIST 65.f
+#define OBSTACLE_DIST 75.f
 #define WALL_DETECT_DIST 300.f
 #define DEG2RAD 180.f / 3.14f
 
@@ -29,13 +29,16 @@ ErrorCode DriveTrain::Drive()
     while (true)
     {
       // [0] -> Clear any obstacles
-      m_err = ClearObstacle();
-      if (m_err != OK)
+      while (isObsticalDetected())
       {
-          Stop();
-          return m_err;
+        m_err = ClearObstacle();
+        if (m_err != OK)
+        {
+            Stop();
+            return m_err;
+        }
       }
-    
+      
       // [1] -> Find an ultrasonic sensor to follow
       bool isLeft;
       UltraSonic* follower;
@@ -73,7 +76,30 @@ ErrorCode DriveTrain::Drive()
           Serial3.println(wallDist);
           if (wallDist > WALL_DETECT_DIST)
           {
+              Serial3.println("LOST WALL!!");
               Stop();
+              delay(1000);
+              Drive(100, Forward);
+              delay(500);
+              Stop();
+              if (isLeft)
+              {
+                Turn(90);
+              }
+              else
+              {
+                Turn(-90);
+              }
+              Drive(100, Forward);
+              for (auto i = 0; i < 40; ++i)
+              {
+                if (isObsticalDetected())
+                {
+                  break;
+                }
+                delay(10);
+              }
+              
               break;
           }
           
@@ -194,6 +220,11 @@ bool DriveTrain::isObsticalDetected()
 
 void DriveTrain::Drive(int vel, Direction d)
 {
+  if (isObsticalDetected())
+  {
+    ClearObstacle();
+  }
+
   L.drive(-DEFAULT_SPEED_L);
   R.drive(-DEFAULT_SPEED_R);
 }
@@ -226,8 +257,8 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 
   // Find speed update and limit
   float speedUpdate = kp * p + kd * d;
-  speedUpdate = min(speedUpdate, 10);
-  speedUpdate = max(speedUpdate, -10);
+  speedUpdate = min(speedUpdate, 12);
+  speedUpdate = max(speedUpdate, -12);
 
   Serial3.print("wallDist: ");
   Serial3.print(wallDist);
