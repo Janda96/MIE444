@@ -38,16 +38,19 @@ ErrorCode err = OK;
 void setup() 
 {
   lcd.begin(16, 2);
-  Serial.begin(9600);
+  Serial3.begin(9600);
 }
 
 void loop() 
 {
+//    chasis.Turn(180.f);
+//    delay(2000);
+  
+  lcd.println(analogRead(BAT_SENSE)*0.01465f);
   err = chasis.Drive();
   if (err == Blocked)
   {
     lcd.print("I'm Stuck!!");
     while (true);
   }
-  while (true);
 }

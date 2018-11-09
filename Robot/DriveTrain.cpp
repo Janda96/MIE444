@@ -8,10 +8,12 @@
 
 // Preprocessor definitions
 #define MAX_SPEED 150
-#define DEFAULT_SPEED 75
-#define OBSTACLE_DIST 200.f
-#define WALL_DETECT_DIST 400.f
+#define DEFAULT_SPEED_R 100
+#define DEFAULT_SPEED_L (0.95f)*DEFAULT_SPEED_R
+#define OBSTACLE_DIST 75.f
+#define WALL_DETECT_DIST 300.f
 #define DEG2RAD 180.f / 3.14f
+
 
 DriveTrain::DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase) :
 L(L),
@@ -27,13 +29,16 @@ ErrorCode DriveTrain::Drive()
     while (true)
     {
       // [0] -> Clear any obstacles
-      m_err = ClearObstacle();
-      if (m_err != OK)
+      while (isObsticalDetected())
       {
-          Stop();
-          return m_err;
+        m_err = ClearObstacle();
+        if (m_err != OK)
+        {
+            Stop();
+            return m_err;
+        }
       }
-    
+      
       // [1] -> Find an ultrasonic sensor to follow
       bool isLeft;
       UltraSonic* follower;
@@ -48,14 +53,57 @@ ErrorCode DriveTrain::Drive()
       float wallDist;
       while (!isObsticalDetected())
       {
+          float lDist = US.L.getDist();
+          float rDist = US.R.getDist();
+          if (lDist < 40.f)
+          {
+             Stop();
+             Turn(-5);
+             Drive(100, Forward);
+             delay(500);
+             Stop();
+          }
+          if (rDist < 40.f)
+          {
+             Stop();
+             Turn(5);
+             Drive(100, Forward);
+             delay(500);
+             Stop();
+          }
+
           wallDist = follower->getDist();
+          Serial3.println(wallDist);
           if (wallDist > WALL_DETECT_DIST)
           {
+              Serial3.println("LOST WALL!!");
               Stop();
+              delay(1000);
+              Drive(100, Forward);
+              delay(500);
+              Stop();
+              if (isLeft)
+              {
+                Turn(90);
+              }
+              else
+              {
+                Turn(-90);
+              }
+              Drive(100, Forward);
+              for (auto i = 0; i < 40; ++i)
+              {
+                if (isObsticalDetected())
+                {
+                  break;
+                }
+                delay(10);
+              }
+              
               break;
           }
           
-          UpdateSpeed(wallDist, false);
+          UpdateSpeed(wallDist, isLeft);
           delay(100); // Might be unnecessary
       }
     }
@@ -63,7 +111,7 @@ ErrorCode DriveTrain::Drive()
     return m_err;
 }
 
-ErrorCode DriveTrain::FindFollower(UltraSonic* follower, bool& isLeft)
+ErrorCode DriveTrain::FindFollower(UltraSonic*& follower, bool& isLeft)
 {
     float lDist = US.L.getDist();
     float rDist = US.R.getDist();
@@ -72,7 +120,7 @@ ErrorCode DriveTrain::FindFollower(UltraSonic* follower, bool& isLeft)
     while (lDist > WALL_DETECT_DIST && rDist > WALL_DETECT_DIST)
     {
         // Drive forward
-        Drive(DEFAULT_SPEED, Forward);
+        Drive(DEFAULT_SPEED_R, Forward);
 
         // Make sure robot doesnt hit anything
         if (isObsticalDetected())
@@ -102,27 +150,33 @@ ErrorCode DriveTrain::FindFollower(UltraSonic* follower, bool& isLeft)
     }
 
     // Make robot parrallel to wall
-    MakeWallParallel(follower);
-
+    // MakeWallParallel(follower);
+    Serial3.println("FOUND FOLLOWER");  
     return OK;
 }
 
 void DriveTrain::MakeWallParallel(UltraSonic* follower)
 {
-    Turn(-40);
-    L.drive(100);
-    R.drive(-100);
+    Turn(-20);
+    L.drive(60);
+    R.drive(-60);
 
     float dist = follower->getDist();
-    float currDist = dist - 10.f;
+    float currDist;
 
     delay(200);
-    while (dist > currDist)
+    while (true)
     {
       currDist = follower->getDist();
+      if (currDist > dist)
+      {
+        break;
+      }
+      
+      dist = currDist;
     }
     
-    Turn(-20);
+    // Turn(-15);
     Stop();
 }
 
@@ -154,6 +208,8 @@ ErrorCode DriveTrain::ClearObstacle()
           return Blocked;
         }
     }
+
+    Serial3.println("CLEARED OBSTACLE");
     return OK;
 }
 
@@ -164,8 +220,13 @@ bool DriveTrain::isObsticalDetected()
 
 void DriveTrain::Drive(int vel, Direction d)
 {
-  L.drive(d * vel);
-  R.drive(d * vel);
+  if (isObsticalDetected())
+  {
+    ClearObstacle();
+  }
+
+  L.drive(-DEFAULT_SPEED_L);
+  R.drive(-DEFAULT_SPEED_R);
 }
 
 void DriveTrain::Drive(int vel, int dist, Direction d)
@@ -189,24 +250,34 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
   unsigned long currTime = millis();
   float d = (wallDist - prevDist) / static_cast<float>(currTime - prevTime);
   prevTime = currTime;
+  prevDist = wallDist;
   
   // Calculate the proportion component
   float p = targetDist - wallDist;
 
   // Find speed update and limit
   float speedUpdate = kp * p + kd * d;
-  speedUpdate = min(speedUpdate, 10);
+  speedUpdate = min(speedUpdate, 12);
+  speedUpdate = max(speedUpdate, -12);
+
+  Serial3.print("wallDist: ");
+  Serial3.print(wallDist);
+  Serial3.print(" p: ");
+  Serial3.print(p);
+  Serial3.print(" d: ");
+  Serial3.print(d);
+  Serial3.println();
   
   // Update motor speeds based on control input
   if (isLeft)
   {
-      rSpeed = DEFAULT_SPEED - speedUpdate;
-      lSpeed = DEFAULT_SPEED + speedUpdate;
+      rSpeed = DEFAULT_SPEED_R - speedUpdate;
+      lSpeed = DEFAULT_SPEED_L + speedUpdate;
   }
   else
   {
-      rSpeed = DEFAULT_SPEED + speedUpdate;
-      lSpeed = DEFAULT_SPEED - speedUpdate;
+      rSpeed = DEFAULT_SPEED_R + speedUpdate;
+      lSpeed = DEFAULT_SPEED_L - speedUpdate;
   }
   
   // Limit max speed
@@ -223,8 +294,8 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 
 void DriveTrain::ResetSpeed()
 {
-  rSpeed = DEFAULT_SPEED;
-  lSpeed = DEFAULT_SPEED;
+  rSpeed = DEFAULT_SPEED_R;
+  lSpeed = DEFAULT_SPEED_L;
 }
 
 void DriveTrain::Turn(float angle)
@@ -237,7 +308,7 @@ void DriveTrain::Turn(float angle)
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
 
-  float DelayGain = angle > 0 ? 0.14f : 0.14f;
+  float DelayGain = angle > 0 ? 0.13f : 0.13f;
 
   float turnDist = wheelbase / 2.f * abs(angle);
   float currDist = 0.f;
