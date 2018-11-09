@@ -4,6 +4,7 @@
 
 // Standard Includes
 #include <Servo.h>
+#include <LiquidCrystal.h>
 
 // Custom Includes
 #include "DriveTrain.h"
@@ -12,22 +13,41 @@
 #include "IO.h"
 #include "Types.h"
 
+// LCD
+LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
+
 // Motors
 Motor leftMotor = Motor(AIN1, AIN2, PWMA, 1, STBY);
 Motor rightMotor = Motor(BIN1, BIN2, PWMB, 1, STBY);
 
-// Ultrasonic
-UltraSonic US1(US1_T, US1_E);
-UltraSonic US2(US2_T, US2_E);
-UltraSonic US3(US3_T, US3_E);
-UltraSonic US4(US4_T, US4_E);
+// Ultrasoinc Sensors
+UltraSonic US_Front(US2_T, US2_E);
+UltraSonic US_Back(US4_T, US4_E);
+UltraSonic US_Right(US3_T, US3_E);
+UltraSonic US_Left(US1_T, US1_E);
 
-void setup() {
-  
-  Serial.begin(9600);              //  setup serial
+// Ultrasonic Sensor Array
+UltraSonicArray US = {US_Front, US_Back, US_Right, US_Left};
+
+// Drivetrain
+DriveTrain chasis(leftMotor, rightMotor, US, 10);
+
+// Error code
+ErrorCode err = OK;
+
+void setup() 
+{
+  lcd.begin(16, 2);
+  Serial.begin(9600);
 }
 
-void loop() {
-  
-  
+void loop() 
+{
+  err = chasis.Drive();
+  if (err == Blocked)
+  {
+    lcd.print("I'm Stuck!!");
+    while (true);
+  }
+  while (true);
 }
