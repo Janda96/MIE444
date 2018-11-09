@@ -50,23 +50,26 @@ ErrorCode DriveTrain::Drive()
       float wallDist;
       while (!isObsticalDetected())
       {
-          wallDist = follower->getDist();
-          if (wallDist < 40.f)
+          float lDist = US.L.getDist();
+          float rDist = US.R.getDist();
+          if (lDist < 40.f)
           {
-            Stop();
-            if (isLeft)
-            {
-              Turn(-5);
-            }
-            else
-            {
-              Turn(5);
-            }
-            Drive(100, Forward);
-            delay(500);
-            Stop();
+             Stop();
+             Turn(-5);
+             Drive(100, Forward);
+             delay(500);
+             Stop();
           }
-          
+          if (rDist < 40.f)
+          {
+             Stop();
+             Turn(5);
+             Drive(100, Forward);
+             delay(500);
+             Stop();
+          }
+
+          wallDist = follower->getDist();
           Serial3.println(wallDist);
           if (wallDist > WALL_DETECT_DIST)
           {
@@ -274,7 +277,7 @@ void DriveTrain::Turn(float angle)
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
 
-  float DelayGain = angle > 0 ? 0.14f : 0.14f;
+  float DelayGain = angle > 0 ? 0.13f : 0.13f;
 
   float turnDist = wheelbase / 2.f * abs(angle);
   float currDist = 0.f;
