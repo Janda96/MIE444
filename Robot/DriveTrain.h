@@ -34,6 +34,8 @@ private:
   void AvoidWall();
 
   void AvoidWall(UltraSonic& DistSensor, bool isLeft);
+
+  void DealWithLostWall(bool isLeft);
   
   // Control loop to make sure driving straight
   void UpdateSpeed(float wallDist, bool isLeft);
