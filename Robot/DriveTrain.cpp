@@ -5,15 +5,15 @@
 
 // Custom Includes
 #include "Arduino.h"
+#include "Modules.h"
 
 // Preprocessor definitions
 #define MAX_SPEED 150
 #define DEFAULT_SPEED_R 100
-#define DEFAULT_SPEED_L (0.95f)*DEFAULT_SPEED_R
+#define DEFAULT_SPEED_L (0.95f) * DEFAULT_SPEED_R
 #define OBSTACLE_DIST 75.f
 #define WALL_DETECT_DIST 300.f
 #define DEG2RAD 180.f / 3.14f
-
 
 DriveTrain::DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase) :
 L(L),
