@@ -27,36 +27,39 @@ private:
 
   ErrorCode FindFollower(UltraSonic*& follower, bool& isLeft);
 
-  void MakeWallParallel(UltraSonic* follower);
-
   ErrorCode ClearObstacle();
 
   bool isObsticalDetected();
+
+  void AvoidWall();
+
+  void AvoidWall(UltraSonic& DistSensor, bool isLeft);
+
+  void DealWithLostWall(bool isLeft);
   
   // Control loop to make sure driving straight
   void UpdateSpeed(float wallDist, bool isLeft);
 
-  void ResetSpeed();
+  void MakeWallParallel(UltraSonic* follower);
 
 private: /* DATA */
-
+  
+  // DriveTrain Modules
   Motor L;            // Left motor
   Motor R;            // Right motor
-  UltraSonicArray US; // Ultrasonic array on robot              
+  UltraSonicArray US; // Ultrasonic array on robot    
+
+  // DriveTrain Parameters
   float wheelbase;    // Distance between wheels
 
   // Control parameters
   float targetDist = 65.f;  // Target distance to follow wall
   float kp = 0.5f;          // Proportional gain
-  float kd = -250.f;          // Differential gain
+  float kd = -250.f;        // Differential gain
 
   // Derivative Estimate
   float prevDist;
   unsigned long prevTime;
-
-  // Control Values
-  int rSpeed;              // Right motor speed
-  int lSpeed;              // Left motor speed
 
   ErrorCode m_err = OK;
 };
