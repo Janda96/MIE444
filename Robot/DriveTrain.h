@@ -54,8 +54,13 @@ private: /* DATA */
 
   // Control parameters
   float targetDist = 65.f;  // Target distance to follow wall
+<<<<<<< HEAD
   float kp = 0.5f;          // Proportional gain
   float kd = -250.f;        // Differential gain
+=======
+  float kp = 0.3f;          // Proportional gain
+  float kd = -100.f;          // Differential gain
+>>>>>>> parent of e44148f... Final Tunning Nov 8
 
   // Derivative Estimate
   float prevDist;

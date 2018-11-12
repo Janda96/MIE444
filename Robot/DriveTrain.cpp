@@ -14,12 +14,17 @@
 #define MAX_SPEED 150
 #define MOTOR_CALIB 0.95f
 #define DEFAULT_SPEED_R 100
+<<<<<<< HEAD
 #define DEFAULT_SPEED_L MOTOR_CALIB * DEFAULT_SPEED_R
 
 // Wall Avoidance Related
 #define OBSTACLE_DIST 75.f
 #define AVOID_DIST 100.f
 #define WALL_AVOID_DIST 40.f
+=======
+#define DEFAULT_SPEED_L (0.95f)*DEFAULT_SPEED_R
+#define OBSTACLE_DIST 65.f
+>>>>>>> parent of e44148f... Final Tunning Nov 8
 #define WALL_DETECT_DIST 300.f
 
 ErrorCode DriveTrain::Drive()
@@ -27,16 +32,13 @@ ErrorCode DriveTrain::Drive()
     while (true)
     {
       // [0] -> Clear any obstacles
-      while (isObsticalDetected())
+      m_err = ClearObstacle();
+      if (m_err != OK)
       {
-        m_err = ClearObstacle();
-        if (m_err != OK)
-        {
-            Stop();
-            return m_err;
-        }
+          Stop();
+          return m_err;
       }
-      
+    
       // [1] -> Find an ultrasonic sensor to follow
       bool isLeft;
       UltraSonic* follower;
@@ -60,7 +62,11 @@ ErrorCode DriveTrain::Drive()
           // Then go down the direction of the wall
           if (wallDist > WALL_DETECT_DIST)
           {
+<<<<<<< HEAD
               DealWithLostWall(isLeft);
+=======
+              Stop();
+>>>>>>> parent of e44148f... Final Tunning Nov 8
               break;
           }
           
@@ -115,6 +121,93 @@ ErrorCode DriveTrain::FindFollower(UltraSonic*& follower, bool& isLeft)
     return OK;
 }
 
+<<<<<<< HEAD
+=======
+void DriveTrain::MakeWallParallel(UltraSonic* follower)
+{
+    Turn(-20);
+    L.drive(60);
+    R.drive(-60);
+
+    float dist = follower->getDist();
+    float currDist;
+
+    delay(200);
+    while (true)
+    {
+      currDist = follower->getDist();
+      if (currDist > dist)
+      {
+        break;
+      }
+      
+      dist = currDist;
+    }
+    
+    // Turn(-15);
+    Stop();
+}
+
+ErrorCode DriveTrain::ClearObstacle()
+{
+    // Take measurements about robots' surroundings
+    float bDist = US.B.getDist();
+    float lDist = US.L.getDist();
+    float rDist = US.R.getDist();
+    
+    // Check if cannot go forward
+    // Will need to turn to free spot in this case
+    if (isObsticalDetected())
+    {
+        if (lDist > OBSTACLE_DIST)
+        {
+          Turn(90.f);
+        }
+        else if (rDist > OBSTACLE_DIST)
+        {
+          Turn(-90.f);
+        }
+        else if (bDist > OBSTACLE_DIST)
+        {
+          Turn(180.f);
+        }
+        else
+        {
+          return Blocked;
+        }
+    }
+
+    Serial3.println("CLEARED OBSTACLE");
+    return OK;
+}
+
+bool DriveTrain::isObsticalDetected()
+{
+    return US.F.getDist() < OBSTACLE_DIST;
+}
+
+void DriveTrain::Drive(int vel, Direction d)
+{
+  L.drive(-DEFAULT_SPEED_L);
+  R.drive(-DEFAULT_SPEED_R);
+}
+
+void DriveTrain::Drive(int vel, int dist, Direction d)
+{
+  Drive(vel, d);
+  float currDist = 0.f;
+  while (currDist < dist)
+  {
+    // Update distance
+    // currDist = 
+    
+    delay(5000);
+    break;
+  }
+  Stop();
+}
+
+>>>>>>> parent of e44148f... Final Tunning Nov 8
 void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 {
   // Calculate the derivative component
@@ -128,8 +221,21 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 
   // Find speed update and limit
   float speedUpdate = kp * p + kd * d;
+<<<<<<< HEAD
   speedUpdate = min(speedUpdate, 12);
   speedUpdate = max(speedUpdate, -12);
+=======
+  speedUpdate = min(speedUpdate, 10);
+  speedUpdate = max(speedUpdate, -10);
+
+  Serial3.print("wallDist: ");
+  Serial3.print(wallDist);
+  Serial3.print(" p: ");
+  Serial3.print(p);
+  Serial3.print(" d: ");
+  Serial3.print(d);
+  Serial3.println();
+>>>>>>> parent of e44148f... Final Tunning Nov 8
   
   // Update motor speeds based on control input
   float rSpeed, lSpeed;
