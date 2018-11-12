@@ -320,6 +320,11 @@ void DriveTrain::MakeWallParallel(UltraSonic* follower)
     Stop();
 }
 
+void DriveTrain::set(int vel, bool isLeft)
+{
+  isLeft ? L.drive(vel) : R.drive(vel);
+}
+
 bool DriveTrain::isObsticalDetected()
 {
     return US.F.getDist() < OBSTACLE_DIST;

@@ -19,10 +19,13 @@ UltraSonic US_Right(US3_T, US3_E);
 UltraSonic US_Left(US1_T, US1_E);
 
 // IR Sensors
-IR IR_FR(IRD1);
-IR IR_FL(IRD2);
-IR IR_BL(IRD3);
-IR IR_BR(IRD4);
+IR IR_FR(IRD4);
+IR IR_FL(IRD3);
+IR IR_BL(IRD1);
+IR IR_BR(IRD2);
+
+// IR Distance Sensor
+IRDist IRD(IR_5);
 
 // Ultrasonic Sensor Array
 UltraSonicArray US = {US_Front, US_Back, US_Right, US_Left};

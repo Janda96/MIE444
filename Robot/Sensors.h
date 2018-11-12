@@ -33,9 +33,10 @@ public:
 class IRDist : private Input
 {
 public:
-  
-private:
 
+  float getDist();
+
+  IRDist(unsigned pinInd);
 };
 
 // Ultrasonic array on robot
