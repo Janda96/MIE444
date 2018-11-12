@@ -14,7 +14,12 @@ extern "C" {
 
 #include <stdint.h>
     
-void UARTInit(const uint32_t baud_rate, const uint8_t BRGH);
+#define UART_TRIS_RX TRISCbits.TRISC4
+#define UART_TRIS_TX TRISCbits.TRISC5
+#define UART_RX PORTCbits.RC4
+#define UART_TX PORTCbits.RC5
+    
+void UARTInit(const uint32_t baud_rate);
 
 void UARTSendByte(const char c);
 
