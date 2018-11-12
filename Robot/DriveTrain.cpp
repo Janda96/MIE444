@@ -51,7 +51,6 @@ ErrorCode DriveTrain::Drive()
           AvoidWall();  // Avoid wall if gets too close
 
           wallDist = follower->getDist();
-          Serial3.println(wallDist);
 
           // If wall is lost
           // Then go down the direction of the wall
@@ -109,7 +108,6 @@ ErrorCode DriveTrain::FindFollower(UltraSonic*& follower, bool& isLeft)
     }
 
     // Make robot parrallel to wall
-    Serial3.println("FOUND FOLLOWER");  
     return OK;
 }
 
@@ -141,8 +139,6 @@ ErrorCode DriveTrain::ClearObstacle()
           return Blocked;
         }
     }
-
-    Serial3.println("CLEARED OBSTACLE");
     return OK;
 }
 

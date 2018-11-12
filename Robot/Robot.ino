@@ -19,8 +19,7 @@ void setup()
 }
 
 void loop() 
-{
-  lcd.println(analogRead(BAT_SENSE)*0.01465f);
+{ 
   err = chasis.Drive();
   if (err == Blocked)
   {
