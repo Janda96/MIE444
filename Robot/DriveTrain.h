@@ -21,6 +21,8 @@ public:
 
   void Turn(float angle);
 
+  void set(int vel, bool isLeft);
+
   DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase);
 
 private:

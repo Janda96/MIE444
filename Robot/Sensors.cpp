@@ -25,6 +25,25 @@ trig(trigPin, false)
 {
 }
 
+float IRDist::getDist()
+{
+  // Convert to volts
+  float volts = readValue() * 0.0048828125f;
+
+  // Convert to distance
+  return 13.f * pow(volts, -1);
+}
+
+IRDist::IRDist(unsigned pinInd) : 
+Input(pinInd, true)
+{
+}
+
+float IR::getBW()
+{
+  return readValue();
+}
+
 IR::IR(unsigned pinInd) : 
 Input(pinInd, false)
 {

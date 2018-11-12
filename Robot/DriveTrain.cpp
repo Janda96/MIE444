@@ -27,16 +27,13 @@ ErrorCode DriveTrain::Drive()
     while (true)
     {
       // [0] -> Clear any obstacles
-      while (isObsticalDetected())
+      m_err = ClearObstacle();
+      if (m_err != OK)
       {
-        m_err = ClearObstacle();
-        if (m_err != OK)
-        {
-            Stop();
-            return m_err;
-        }
+          Stop();
+          return m_err;
       }
-      
+    
       // [1] -> Find an ultrasonic sensor to follow
       bool isLeft;
       UltraSonic* follower;
@@ -54,13 +51,13 @@ ErrorCode DriveTrain::Drive()
           AvoidWall();  // Avoid wall if gets too close
 
           wallDist = follower->getDist();
-          Serial3.println(wallDist);
 
           // If wall is lost
           // Then go down the direction of the wall
           if (wallDist > WALL_DETECT_DIST)
           {
               DealWithLostWall(isLeft);
+              Stop();
               break;
           }
           
@@ -111,7 +108,37 @@ ErrorCode DriveTrain::FindFollower(UltraSonic*& follower, bool& isLeft)
     }
 
     // Make robot parrallel to wall
-    Serial3.println("FOUND FOLLOWER");  
+    return OK;
+}
+
+ErrorCode DriveTrain::ClearObstacle()
+{
+    // Take measurements about robots' surroundings
+    float bDist = US.B.getDist();
+    float lDist = US.L.getDist();
+    float rDist = US.R.getDist();
+    
+    // Check if cannot go forward
+    // Will need to turn to free spot in this case
+    if (isObsticalDetected())
+    {
+        if (lDist > OBSTACLE_DIST)
+        {
+          Turn(90.f);
+        }
+        else if (rDist > OBSTACLE_DIST)
+        {
+          Turn(-90.f);
+        }
+        else if (bDist > OBSTACLE_DIST)
+        {
+          Turn(180.f);
+        }
+        else
+        {
+          return Blocked;
+        }
+    }
     return OK;
 }
 
@@ -187,39 +214,6 @@ void DriveTrain::Turn(float angle)
   
   L.brake();
   R.brake();
-}
-
-ErrorCode DriveTrain::ClearObstacle()
-{
-    // Take measurements about robots' surroundings
-    float bDist = US.B.getDist();
-    float lDist = US.L.getDist();
-    float rDist = US.R.getDist();
-    
-    // Check if cannot go forward
-    // Will need to turn to free spot in this case
-    if (isObsticalDetected())
-    {
-        if (lDist > AVOID_DIST)
-        {
-          Turn(90.f);
-        }
-        else if (rDist > AVOID_DIST)
-        {
-          Turn(-90.f);
-        }
-        else if (bDist > AVOID_DIST)
-        {
-          Turn(180.f);
-        }
-        else
-        {
-          return Blocked;
-        }
-    }
-
-    Serial3.println("CLEARED OBSTACLE");
-    return OK;
 }
 
 void DriveTrain::AvoidWall()
@@ -320,6 +314,11 @@ void DriveTrain::MakeWallParallel(UltraSonic* follower)
     
     // Turn(-15);
     Stop();
+}
+
+void DriveTrain::set(int vel, bool isLeft)
+{
+  isLeft ? L.drive(vel) : R.drive(vel);
 }
 
 bool DriveTrain::isObsticalDetected()

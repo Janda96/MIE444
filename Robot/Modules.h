@@ -13,3 +13,9 @@ extern DriveTrain chasis;
 
 // Ultrasonic Sensor Array
 extern UltraSonicArray US;
+
+// IR Sensor Array
+extern IRArray IRA;
+
+// IR Distance Sensor
+extern IRDist IRD;
