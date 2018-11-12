@@ -25,6 +25,11 @@ trig(trigPin, false)
 {
 }
 
+float IR::getBW()
+{
+  return readValue();
+}
+
 IR::IR(unsigned pinInd) : 
 Input(pinInd, false)
 {

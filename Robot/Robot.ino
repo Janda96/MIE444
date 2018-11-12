@@ -14,7 +14,7 @@ ErrorCode err = OK;
 
 void setup() 
 {
-  lcd.begin(16, 2);
+  lcd.begin(20, 4);
   Serial3.begin(9600);
 }
 
