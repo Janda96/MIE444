@@ -14,12 +14,13 @@ ErrorCode err = OK;
 
 void setup() 
 {
-  lcd.begin(20, 4);
+  lcd.begin(16, 2);
   Serial3.begin(9600);
 }
 
 void loop() 
-{ 
+{
+  lcd.println(analogRead(BAT_SENSE)*0.01465f);
   err = chasis.Drive();
   if (err == Blocked)
   {
