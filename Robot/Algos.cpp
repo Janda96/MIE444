@@ -5,22 +5,50 @@
 // Custom Includes
 #include "Arduino.h"
 #include "Modules.h"
+#include "Types.h"
+
+ErrorCode err = OK;
 
 // Get to loading zone from random starting location
 void GetToLZ()
 {
-	// while not in the loading zone
-		// Find orientation
-		// if going left
-			// keep going left until wall hit
-			// if wall hit
-				// turn up
-			// if wall disappears
-				// look for left wall
-		// if going up
-			// look for left wall disappearing
-			// if left wall disappears
-				// DealWithLostWall(isLeft = true)
+  Pose p;
+  float var;
+  while (!isLoadingZone())
+  {
+      // Find orientation
+      Locator.getPose(p, var);
+      if (p.o == Left)
+      {
+          // keep going left until wall hit
+          // By following the left wall
+          err = chasis.FollowWall(US.L);
+
+          // if wall hit turn up
+          if (err == ObstacleDetected)
+          {
+              chasis.turn(-90)    
+          }
+
+          // if wall disappears look for left wall
+          if (err == WallDisapeared)
+          {
+              chasis.LookFor(true);  
+          }
+      }
+      if (p.o == Up)
+      {
+        // look for left wall disappearing
+        err = chasis.FollowWall(US.L);      // Follow left wall
+
+        // if left wall disappears turn left
+        if (err == WallDisapeared)
+        {
+            chasis.WallLost(true);
+        }
+      }
+    }
+  }
 }
 
 // Travel from Loading zone to top left
@@ -82,6 +110,11 @@ void LzToDz4()
   chasis.LostWall(true);        // Lost wall turn left
   chasis.FollowWall(US.R);      // Follow right wall
   chasis.Stop();
+}
+
+bool isLoadingZone()
+{
+  return false;
 }
 
 bool isBlockDetected()

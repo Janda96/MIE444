@@ -10,6 +10,7 @@ enum ErrorCode
   InvalidInput = -1,
   ObstacleDetected = -2,
   Blocked = -3,
+  WallDisapeared = -4,
 };
 
 enum Direction
@@ -18,8 +19,17 @@ enum Direction
   Backward = 1
 };
 
-struct point
+enum Orientation
 {
-  float x;
-  float y;
-};
+  Up = 0,
+  Down = 1;
+  Left = 2;
+  Right = 3; 
+}
+
+struct Pose
+{
+   float x;
+   float y;
+   Orientation O;
+}
