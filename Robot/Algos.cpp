@@ -27,61 +27,61 @@ void GetToLZ()
 // drop off zone
 void LzToDz1()
 {
-	// Follow left wall
-	// Turn right 90 degrees
-	// Follow Left wall
-	// Look for right wall
-	// Turn left 90 degrees
-	// Follow right wall
-	// DealWithLostWall Turn left
-	// Follow right wall
-	// Stop and drop off
+  chasis.FollowWall(US.L);      // Follow left wall
+  chasis.Turn(-90);             // Turn right 90 degrees
+  chasis.FollowWall(US.L);      // Follow Left wall
+  chasis.LookFor(US.R);         // Look for right wall
+  chasis.Turn(90);              // Turn left 90 degrees
+  chasis.FollowWall(US.R);      // Follow right wall
+	chasis.LostWall(true);        // Lost wall turn left
+	chasis.FollowWall(US.R);      // Follow right wall
+  chasis.Stop();                // Stop and drop off
 }
 
 // Travel from Loading zone to top right
 // drop off zone
 void LzToDz2()
 {
-	// Follow left wall
-	// Turn right 90 degrees
-	// Follow Left wall
-	// Look for right wall
-	// Turn left 90 degrees
-	// Follow right wall
-	// Look for left wall (drive forward)
-	// Follow left wall
-	// DealWithLostWall Turn left
-	// Follow right wall
-	// Stop and drop off
+  chasis.FollowWall(US.L);      // Follow left wall
+  chasis.Turn(-90);             // Turn right 90 degrees
+  chasis.FollowWall(US.L);      // Follow Left wall
+  chasis.LookFor(US.R);         // Look for right wall
+  chasis.Turn(90);              // Turn left 90 degrees
+  chasis.FollowWall(US.R);      // Follow right wall
+  chasis.LookFor(true);         // Look for left wall (drive forward)
+  chasis.FollowWall(US.L);      // Follow left wall
+  chasis.LostWall(true);        // Lost wall turn left
+  chasis.FollowWall(US.R);      // Follow right wall
+  chasis.Stop();                // Stop and drop off
 }
 
 // Travel from Loading zone to bottom right
 // drop off zone
 void LzToDz3()
 {
-	// Follow left wall
-	// Turn right 90 degrees
-	// Follow Left wall
-	// Look for right wall
-	// Turn left 90 degrees
-	// Follow right wall
-	// Look for left wall (drive forward)
-	// Follow left wall
-	// DealWithLostWall Turn Right
-	// Follow left wall
-	// Stop and drop off
+  chasis.FollowWall(US.L);      // Follow left wall
+  chasis.Turn(-90);             // Turn right 90 degrees
+  chasis.FollowWall(US.L);      // Follow Left wall
+  chasis.LookFor(US.R);         // Look for right wall
+  chasis.Turn(90);              // Turn left 90 degrees
+  chasis.FollowWall(US.R);      // Follow right wall
+  chasis.LookFor(true);         // Look for left wall (drive forward)
+  chasis.FollowWall(US.L);      // Follow left wall
+  chasis.LostWall(false);       // Lost wall turn right
+  chasis.FollowWall(US.L);      // Follow left wall
+  chasis.Stop();                // Stop and drop off
 }
 
 // Travel from Loading zone to bottom left
 // drop off zone
 void LzToDz4()
 {
-	// Follow right wall
-	// Turn left 90 degrees
-	// Find left wall
-	// DealWithLostWall Turn left
-	// Follow right wall
-	// Stop and drop off
+  chasis.FollowWall(US.R);      // Follow left wall
+  chasis.Turn(90);              // Turn left 90 degrees
+  chasis.LookFor(US.L);         // Look for left wall
+  chasis.LostWall(true);        // Lost wall turn left
+  chasis.FollowWall(US.R);      // Follow right wall
+  chasis.Stop();
 }
 
 bool isBlockDetected()

@@ -22,60 +22,29 @@
 #define WALL_AVOID_DIST 40.f
 #define WALL_DETECT_DIST 300.f
 
-ErrorCode DriveTrain::Drive()
+ErrorCode DriveTrain::FollowWall(Ultrasonic& follower)
 {
-    while (true)
+    while (!isObsticalDetected())
     {
-      // [0] -> Clear any obstacles
-      m_err = ClearObstacle();
-      if (m_err != OK)
-      {
-          Stop();
-          return m_err;
-      }
-    
-      // [1] -> Find an ultrasonic sensor to follow
-      bool isLeft;
-      UltraSonic* follower;
-      m_err = FindFollower(follower, isLeft);
-      if (m_err != OK)
-      {
-          Stop();
-          return m_err;
-      }
-  
-      // [2] -> Follow wall so long as no obstacle detected
-      float wallDist;
-      while (!isObsticalDetected())
-      {
-          AvoidWall();  // Avoid wall if gets too close
+      
+      // Avoid wall if gets too close
+      AvoidWall();  
 
-          wallDist = follower->getDist();
-
-          // If wall is lost
-          // Then go down the direction of the wall
-          if (wallDist > WALL_DETECT_DIST)
-          {
-              DealWithLostWall(isLeft);
-              Stop();
-              break;
-          }
-          
-          UpdateSpeed(wallDist, isLeft);
-          delay(100); // Might be unnecessary
-      }
+      // Control
+      wallDist = follower->getDist();
+      UpdateSpeed(wallDist, isLeft);
+      
+      delay(100); // Might be unnecessary
     }
-    
-    return m_err;
+    return OK;
 }
 
-ErrorCode DriveTrain::FindFollower(UltraSonic*& follower, bool& isLeft)
+ErrorCode DriveTrain::LookFor(Ultrasonic& follower)
 {
-    float lDist = US.L.getDist();
-    float rDist = US.R.getDist();
+    float dist = follower.getDist();
 
     // Drive until a wall is found
-    while (lDist > WALL_DETECT_DIST && rDist > WALL_DETECT_DIST)
+    while (dist > WALL_DETECT_DIST)
     {
         // Drive forward
         Drive(DEFAULT_SPEED_R, Forward);
@@ -93,21 +62,9 @@ ErrorCode DriveTrain::FindFollower(UltraSonic*& follower, bool& isLeft)
 
         // Check distances
         lDist = US.L.getDist();
-        rDist = US.R.getDist();
     }
     
-    if (rDist < WALL_DETECT_DIST)
-    {
-      isLeft = false;
-      follower = &(US.R);
-    }
-    else
-    {
-      isLeft = true;
-      follower = &(US.L);
-    }
-
-    // Make robot parrallel to wall
+    Stop();
     return OK;
 }
 
@@ -236,7 +193,7 @@ void DriveTrain::AvoidWall(UltraSonic& DistSensor, bool isLeft)
     }
 }
 
-void DriveTrain::DealWithLostWall(bool isLeft)
+ErrorCode DriveTrain::LostWall(bool isLeft)
 {
     Serial3.println("LOST WALL!!");
 
@@ -263,6 +220,8 @@ void DriveTrain::DealWithLostWall(bool isLeft)
       }
       delay(10);
     }
+    
+    return OK;
 }
 
 void DriveTrain::Drive(int vel, Direction d)
@@ -274,21 +233,6 @@ void DriveTrain::Drive(int vel, Direction d)
 
   R.drive(d * vel);
   L.drive(d * MOTOR_CALIB * vel);
-}
-
-void DriveTrain::Drive(int vel, int dist, Direction d)
-{
-  Drive(vel, d);
-  float currDist = 0.f;
-  while (currDist < dist)
-  {
-    // Update distance
-    // currDist = 
-    
-    delay(5000);
-    break;
-  }
-  Stop();
 }
 
 void DriveTrain::MakeWallParallel(UltraSonic* follower)

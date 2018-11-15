@@ -11,23 +11,23 @@ class DriveTrain
 {
 public:
 
-  ErrorCode Drive();
+  ErrorCode FollowWall(Ultrasonic& follower);
+
+  ErrorCode LookFor(Ultrasonic& follower);
+
+  ErrorCode LostWall(bool isLeft);
   
   void Drive(int vel, Direction d);
 
-  void Drive(int vel, int dist, Direction d);
+  void Turn(float angle);
 
   void Stop();
-
-  void Turn(float angle);
 
   void set(int vel, bool isLeft);
 
   DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase);
 
 private:
-
-  ErrorCode FindFollower(UltraSonic*& follower, bool& isLeft);
 
   ErrorCode ClearObstacle();
 
@@ -36,8 +36,6 @@ private:
   void AvoidWall();
 
   void AvoidWall(UltraSonic& DistSensor, bool isLeft);
-
-  void DealWithLostWall(bool isLeft);
   
   // Control loop to make sure driving straight
   void UpdateSpeed(float wallDist, bool isLeft);
