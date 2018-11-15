@@ -20,6 +20,25 @@ private:
   Output trig;
 };
 
+class IR : private Input
+{
+public:
+
+  float getBW();
+
+  IR(unsigned pinInd);
+
+};
+
+class IRDist : private Input
+{
+public:
+
+  float getDist();
+
+  IRDist(unsigned pinInd);
+};
+
 // Ultrasonic array on robot
 struct UltraSonicArray
 {
@@ -29,27 +48,11 @@ struct UltraSonicArray
   UltraSonic L;   // Left facing ultrasonic sensor
 };
 
-class IR : private Input
+// IR colour array on robot
+struct IRArray
 {
-public:
-
-  IR(unsigned pinInd);
-  
-private:
-
-};
-
-class IRDist : private Input
-{
-public:
-  
-private:
-
-};
-
-template<typename sensorType>
-struct SensorAndPos
-{
-  sensorType Sensor;
-  point pos;
+  IR FR;   // Front right facing IR sensor
+  IR FL;   // Front left facing IR sensor
+  IR BR;   // Back Right facing IR sensor
+  IR BL;   // Back Left facing IR sensor
 };
