@@ -1,16 +1,26 @@
 
 #include <xc.h>
 #include "UART.h"
-#include"Config.h"
 
-void UARTInit(const uint32_t baud_rate) 
+#define _XTAL_FREQ 32000000  // 32 MHz
+
+#define UART_TRIS_RX TRISCbits.TRISC4
+#define UART_TRIS_TX TRISCbits.TRISC5
+
+void UARTInit(const uint32_t baud_rate, const uint8_t BRGH) 
 {
     // Set Baud rate
-    
-    TX1STAbits.BRGH = 1;
-    BAUD1CONbits.BRG16 = 1;
-    SPBRG = _XTAL_FREQ/(64*baud_rate) - 1;
-    
+    if (BRGH == 0) 
+    {
+        SPBRG = _XTAL_FREQ/(64*baud_rate) - 1;
+        TX1STAbits.BRGH = 0;
+    } 
+    else 
+    {
+        SPBRG = _XTAL_FREQ/(16*baud_rate) - 1;
+        TX1STAbits.BRGH = 1;
+    }
+   
     // TXSTA register
     TX1STAbits.TX9 = 0;      // 8-bit transmission
     TX1STAbits.TXEN = 1;     // Enable transmission
@@ -35,6 +45,11 @@ void UARTSendByte(const char c)
     
     // Wait for data to send
     while (TX1STAbits.TRMT == 0);
+}
+
+char UARTDataReady() 
+{
+    return PIR3bits.RC1IF;
 }
 
 char UARTReadByte() 
