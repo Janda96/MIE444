@@ -20,7 +20,7 @@
 #define OBSTACLE_DIST 75.f
 #define AVOID_DIST 100.f
 #define WALL_AVOID_DIST 40.f
-#define WALL_DETECT_DIST 300.f
+#define WALL_DETECT_DIST 100.f
 
 ErrorCode DriveTrain::FollowWall(UltraSonic& follower, bool isLeft)
 {
