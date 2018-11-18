@@ -22,8 +22,9 @@
 #define WALL_AVOID_DIST 40.f
 #define WALL_DETECT_DIST 300.f
 
-ErrorCode DriveTrain::FollowWall(Ultrasonic& follower)
+ErrorCode DriveTrain::FollowWall(UltraSonic& follower, bool isLeft)
 {
+    float wallDist = 0.f;
     while (!isObsticalDetected())
     {
       
@@ -31,7 +32,7 @@ ErrorCode DriveTrain::FollowWall(Ultrasonic& follower)
       AvoidWall();  
 
       // Control
-      wallDist = follower->getDist();
+      wallDist = follower.getDist();
       UpdateSpeed(wallDist, isLeft);
       
       delay(100); // Might be unnecessary
@@ -39,7 +40,7 @@ ErrorCode DriveTrain::FollowWall(Ultrasonic& follower)
     return OK;
 }
 
-ErrorCode DriveTrain::LookFor(Ultrasonic& follower)
+ErrorCode DriveTrain::LookFor(UltraSonic& follower)
 {
     float dist = follower.getDist();
 
@@ -61,7 +62,7 @@ ErrorCode DriveTrain::LookFor(Ultrasonic& follower)
         }
 
         // Check distances
-        lDist = US.L.getDist();
+        dist = US.L.getDist();
     }
     
     Stop();

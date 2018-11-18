@@ -13,6 +13,9 @@ void LzToDz2();
 void LzToDz3();
 void LzToDz4();
 
+// Utility functions
+bool isLoadingZone();
+
 //------BLOCK PICKUP-----
 
 bool isBlockDetected();

@@ -7,7 +7,7 @@
 
 // Output the current estimate of 2D Location
 // Along with the 
-void Loc::GetPose(Pose& p, float var)
+void Loc::getPose(Pose& p, float var)
 {
   
 }

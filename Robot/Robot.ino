@@ -10,7 +10,7 @@
 #include "Pins.h"
 
 // Error code
-ErrorCode err = OK;
+ErrorCode errMain = OK;
 
 void setup() 
 {
@@ -20,10 +20,5 @@ void setup()
 
 void loop() 
 { 
-  err = chasis.Drive();
-  if (err == Blocked)
-  {
-    lcd.print("I'm Stuck!!");
-    while (true);
-  }
+  chasis.Turn(90.f);
 }

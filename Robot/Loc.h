@@ -9,7 +9,7 @@ class Loc
 {
 public:
 
-  void GetPose(point& p, Orientationfloat var);
+  void getPose(Pose& p, float var);
 
   void TakeMeasurement();
 

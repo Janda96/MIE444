@@ -22,14 +22,14 @@ enum Direction
 enum Orientation
 {
   Up = 0,
-  Down = 1;
-  Left = 2;
-  Right = 3; 
-}
+  Down = 1,
+  Left = 2,
+  Right = 3,
+};
 
 struct Pose
 {
    float x;
    float y;
    Orientation O;
-}
+};

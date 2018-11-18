@@ -11,9 +11,9 @@ class DriveTrain
 {
 public:
 
-  ErrorCode FollowWall(Ultrasonic& follower);
+  ErrorCode FollowWall(UltraSonic& follower, bool isLeft);
 
-  ErrorCode LookFor(Ultrasonic& follower);
+  ErrorCode LookFor(UltraSonic& follower);
 
   ErrorCode LostWall(bool isLeft);
   
