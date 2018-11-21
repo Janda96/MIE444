@@ -23,9 +23,12 @@ void UARTInit(const uint32_t baud_rate);
 
 void UARTSendByte(const char c);
 
+char UARTSendNext(int *tx_buf, int *tc_ind) 
+
 char UARTReadByte();
 
 char UARTDataReady();
+
 
 #ifdef	__cplusplus
 }

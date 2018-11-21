@@ -37,6 +37,8 @@
 
 #define WB 0.1524
 
+#define tx_buf_max 64
+
 char rx_byte = 0x0;
 char tx_bytes[14];
 long El = 0x0000;
@@ -54,6 +56,10 @@ double dDr = 0;
 
 double R = 0;
 double dw = 0;
+
+int tx_buf[64];
+int tx_ind = 0;
+int tx_size = 0;
 
 void init()
 {
@@ -80,7 +86,6 @@ void init()
     PIR3 = 0x00;
     PIE0bits.IOCIE = 1;
     PIE3bits.RC1IE = 1;
-    PIE3bits.TX1IE = 1;
     
     IOCAP = 0b00110000;
     IOCCP = 0b00001100;
@@ -124,7 +129,19 @@ void main()
     
 }
 
-void __interrupt(high_priority) isr(void){
+volatile void blinky(){
+    for (int i=0; i<10; ++i){
+        LED1 = 1;
+        LED2 = 1;
+        __delay_ms(500);
+        
+        LED1 = 0;
+        LED2 = 0;
+        __delay_ms(500);
+    }
+}
+
+void __interrupt() isr(void){
     if (PIR0bits.IOCIF){
         // One of the encoder pin tripped
         if (IntM1EA){
@@ -165,37 +182,35 @@ void __interrupt(high_priority) isr(void){
     }
     else if(PIR3bits.TX1IF){
         // Serial Send interrupt
-        
+        if (UARTSendNext(*tx_buf, *tx_ind)){
+            
+        }
     }
     else if(PIR3bits.RC1IF){
         // Serial receive interrupt
         // Load the input buffer to be looked at
         rx_byte = RC1REG;
-        TX1REG = rx_byte;
+        //TX1REG = rx_byte;
+        
+        if (rx_byte == 'a'){
+            // If received command 'a', transmit location estimate
+            int length = 0;
+            length += snprintf(tx_buf+length, tx_buf_max , "efg");
+            length += snprintf(tx_buf+length, tx_buf_max , "hij");
+            length += snprintf(tx_buf+length, tx_buf_max , "abc");
+            
+            
+            PIE3bits.TX1IE = 1;
+            
+            
+            
+        } else {
+            // If received action is not handled, send it back through serial
+            TX1REG = rx_byte;
+        }
     }
     else{
-        // Interrupt not handeled properlty
-        LED1 = 1;
-        LED2 = 1;
-        __delay_ms(500);
-        
-        LED1 = 0;
-        LED2 = 0;
-        __delay_ms(500);
-        
-        LED1 = 1;
-        LED2 = 1;
-        __delay_ms(500);
-        
-        LED1 = 0;
-        LED2 = 0;
-        __delay_ms(500);
-        LED1 = 1;
-        LED2 = 1;
-        __delay_ms(500);
-        
-        LED1 = 0;
-        LED2 = 0;
-        __delay_ms(500);
+       // Unhandeled interrupt, make LED blink
+        blinky();
     }
 }
