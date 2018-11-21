@@ -8,14 +8,16 @@
 #include "Util.h"
 #include "Modules.h"
 #include "Pins.h"
+#include "Algos.h"
 
 // Error code
 ErrorCode errMain = OK;
 
 void setup() 
 {
-  lcd.begin(20, 4);
+  //lcd.begin(20, 4);
   Serial3.begin(9600);
+  Serial.begin(9600);
 }
 
 void loop() 
@@ -26,11 +28,11 @@ void loop()
   // Place robot pointing down along left wall in loading zone
   
   // Get from loading zone to drop off zone
-  LzToDz1();
+  // LzToDz1();
   // LzToDz2();
   // LzToDz3();
-  // LzToDz4();
+  LzToDz4();
   
-  chasis.Stop();
-  while (true);
+ chasis.Stop();
+ while (true);
 }

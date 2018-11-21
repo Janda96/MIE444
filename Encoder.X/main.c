@@ -9,6 +9,7 @@
 // Standard Includes
 #include <xc.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
 
@@ -30,11 +31,29 @@
 #define IntM2EB IOCCFbits.IOCCF3
 
 #define GIE INTCONbits.GIE
+#define PEIE INTCONbits.PEIE
+
+#define D_STEP 0.00928197829
+
+#define WB 0.1524
 
 char rx_byte = 0x0;
-long tx_byte = 0x0000;
-long E1_count = 0x0000;
-long E2_count = 0x0000;
+char tx_bytes[14];
+long El = 0x0000;
+long Er = 0x0000;
+
+long prevEl = 0;
+long prevEr = 0;
+
+double x = 0;
+double y = 0;
+double ang = 0;
+
+double dDl = 0;
+double dDr = 0;
+
+double R = 0;
+double dw = 0;
 
 void init()
 {
@@ -54,17 +73,19 @@ void init()
     WPUA = 0x00;
     WPUC = 0x00;
     
-    ADCON0 = 0b1111000001;
+    ADCON0 = 0b11110000;
     
     //Set interrupt masks
     PIR0 = 0x00;
     PIR3 = 0x00;
-    PIE0 = 0b00010000;
-    PIE3 = 0b00100000;
+    PIE0bits.IOCIE = 1;
+    PIE3bits.RC1IE = 1;
+    PIE3bits.TX1IE = 1;
     
     IOCAP = 0b00110000;
     IOCCP = 0b00001100;
     
+    PEIE = 1;
     //
 }
 
@@ -72,64 +93,109 @@ void main()
 {
     GIE=0;
     init();
-    //UARTInit(9600);
-    
+    UARTInit(9600);
     
     
     GIE=1;
     while(1){
-        LED1 = (E1_count&0x0040)&&0x0040;
-        LED2 = (E2_count&0x0040)&&0x0040;
+        LED1 = 0x0040 == (El&0x0040);
+        LED2 = 0x0040 == (Er&0x0040);
+        
+        GIE=0;
+        if (El != prevEl || Er != prevEr){
+            // If encoder position changed, calculated incremental distance
+            dDr = (double) (Er - prevEr);
+            dDr = dDr*D_STEP;
+            dDl = (double) (El - prevEl);
+            dDl = dDl*D_STEP;
+            
+            R = (dDr+dDl)/2;
+            dw = (dDr-dDl)/WB;
+            
+            x = x + R*cos( ang + dw/2 );
+            y = y + R*cos( ang + dw/2 );
+            ang = ang + dw;
+        }
+        GIE=1;
+        
+        
     }
     
     
 }
 
 void __interrupt(high_priority) isr(void){
-    GIE=0;
     if (PIR0bits.IOCIF){
         // One of the encoder pin tripped
         if (IntM1EA){
             IntM1EA=0;
             if(M1EB){
-                E1_count++;
+                El++;
             }else{
-                E1_count--;
+                El--;
             }
         }
         if (IntM1EB){
             IntM1EB=0;
             if(M1EA){
-                E1_count--;
+                El--;
             }else{
-                E1_count++;
+                El++;
             }
         }
         if (IntM2EA){
             IntM2EA=0;
             IntM2EA=0;
             if(M2EB){
-                E2_count++;
+                Er++;
             }else{
-                E2_count--;
+                Er--;
             }
             
         }
         if (IntM2EB){
             IntM2EB=0;
             if(M2EA){
-                E2_count--;
+                Er--;
             }else{
-                E2_count++;
+                Er++;
             }
         }
         
     }
-    if(PIR3bits.RC1IF){
+    else if(PIR3bits.TX1IF){
+        // Serial Send interrupt
+        
+    }
+    else if(PIR3bits.RC1IF){
         // Serial receive interrupt
         // Load the input buffer to be looked at
         rx_byte = RC1REG;
         TX1REG = rx_byte;
     }
-    GIE=1;
+    else{
+        // Interrupt not handeled properlty
+        LED1 = 1;
+        LED2 = 1;
+        __delay_ms(500);
+        
+        LED1 = 0;
+        LED2 = 0;
+        __delay_ms(500);
+        
+        LED1 = 1;
+        LED2 = 1;
+        __delay_ms(500);
+        
+        LED1 = 0;
+        LED2 = 0;
+        __delay_ms(500);
+        LED1 = 1;
+        LED2 = 1;
+        __delay_ms(500);
+        
+        LED1 = 0;
+        LED2 = 0;
+        __delay_ms(500);
+    }
 }
