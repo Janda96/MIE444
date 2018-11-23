@@ -59,9 +59,11 @@ void LzToDz1()
   chasis.Turn(-90);                   // Turn right 90 degrees
   chasis.FollowWall(US.L, true);      // Follow Left wall
   chasis.LookFor(US.R);               // Look for right wall
+  chasis.FollowWall(US.R, false);     // Follow right wall
   chasis.Turn(90);                    // Turn left 90 degrees
   chasis.FollowWall(US.R, false);     // Follow right wall
 	chasis.LostWall(true);              // Lost wall turn left
+  chasis.LookFor(US.R);               // Look for right wall
 	chasis.FollowWall(US.R, false);     // Follow right wall
   chasis.Stop();                      // Stop and drop off
 }
