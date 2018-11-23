@@ -5,6 +5,14 @@
 // Custom Includes
 #include "Arduino.h"
 
+// IR Dist tunning
+#define vAt5cm   2.27f
+#define vAt30cm  0.38f
+#define vMin 0.2f
+#define vMax 2.7f
+
+static float IRDTunning = 250.f / (vAt5cm - vAt30cm);
+
 float UltraSonic::getDist()
 {
   trig.set(LOW);
@@ -27,11 +35,23 @@ trig(trigPin, false)
 
 float IRDist::getDist()
 {
+//  float sum = 0.f;
+//  for (auto i = 0; i < 3; ++i)
+//  {
+//    // Convert to volts
+//    float volts = readValue() * 0.0048828125f;
+//
+//    // Convert to distance
+//    // return 13.f * pow(volts, -1);
+//    // sum += volts;
+//    sum += IRDTunning / volts;
+//  }
+//  return sum / 3.f;
+  
   // Convert to volts
   float volts = readValue() * 0.0048828125f;
-
-  // Convert to distance
-  return 13.f * pow(volts, -1);
+  volts = constrain(volts, vMin, vMax);
+  return IRDTunning / volts;
 }
 
 IRDist::IRDist(unsigned pinInd) : 
