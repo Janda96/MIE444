@@ -127,31 +127,30 @@ bool isBlockDetected()
 
 void TurnTowardsBlock(float searchWindowAngle)
 {
-	static float angleIncrement = 5.f;
-	
-	// Sweep to find block
-	float leftEdgeAngle = 0.f;
-	float rightEdgeAngle = 0.f;
-	bool foundLeft = false;
-	for (auto angle = -searchWindowAngle; angle < searchWindowAngle; angle += angleIncrement)
-	{
-		if (isBlockDetected)
-		{
-			if (foundLeft)
-			{
-				rightEdgeAngle = angle;
-			}
-			else
-			{
-				leftEdgeAngle = angle;
-				foundLeft = true;
-			}
-		}
-	}
-	
-	float centerAngle = (rightEdgeAngle - leftEdgeAngle) / 2.f;
-	if (centerAngle > 0.f)
-	{
-		chasis.Turn(centerAngle - 2 * searchWindowAngle);
-	}
+  static float angleIncrement = (2.f * searchWindowAngle) / 10.f;
+  
+  chasis.Turn(-1.f * searchWindowAngle);
+ 
+  // Sweep to find block
+  float minDist = 500.f;
+  float minAngle = 0.f;
+  float dist = 500.f;
+  for (auto angle = -1.f * searchWindowAngle; angle < searchWindowAngle + 0.1f; angle += angleIncrement)
+  {
+    dist = IRD.getDist();
+    if (dist < minDist)
+    {
+        minAngle = angle;
+        minDist = dist;
+    }
+    chasis.Turn(angleIncrement);
+    delay(500);
+    Serial.println(angle);
+    Serial.println(dist);
+  }
+  
+
+  chasis.Turn(minAngle - searchWindowAngle + 5);
+  Serial.println();
+  Serial.println(minAngle);
 }

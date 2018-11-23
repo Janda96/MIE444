@@ -20,4 +20,4 @@ bool isLoadingZone();
 
 bool isBlockDetected();
 
-void TurnTowardsBlock();
+void TurnTowardsBlock(float searchWindowAngle);
