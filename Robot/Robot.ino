@@ -31,8 +31,14 @@ void loop()
   // LzToDz1();
   // LzToDz2();
   // LzToDz3();
-  LzToDz4();
-  
- chasis.Stop();
- while (true);
+  // LzToDz4();
+
+  // Serial.println(US.F.getDist());
+  // Serial.println(IRD.getDist());
+  // delay(1000);
+  delay(3000);
+  TurnTowardsBlock(90.f);
+    
+  chasis.Stop();
+  while (true);
 }
