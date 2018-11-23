@@ -15,7 +15,7 @@ ErrorCode errMain = OK;
 
 void setup() 
 {
-  //lcd.begin(20, 4);
+  lcd.begin(20, 4);
   Serial3.begin(9600);
   Serial.begin(9600);
 }
@@ -26,9 +26,11 @@ void loop()
   // Place robot pointing right along top wall in loading zone
   // For drop off zone 4
   // Place robot pointing down along left wall in loading zone
-  
+  //chasis.Turn(180.f);
+  //delay(2000);
   // Get from loading zone to drop off zone
-  // LzToDz1();
+  //delay(1000);
+  LzToDz2();
   // LzToDz2();
   // LzToDz3();
   // LzToDz4();
@@ -36,9 +38,13 @@ void loop()
   // Serial.println(US.F.getDist());
   // Serial.println(IRD.getDist());
   // delay(1000);
-  delay(3000);
-  TurnTowardsBlock(90.f);
-    
+
+  //chasis.Turn(180.f);
+  //delay(1000);
+
+  //TurnTowardsBlock(60.f);
+  //chasis.Drive(100, Forward);
+  //delay(500);
   chasis.Stop();
   while (true);
 }
