@@ -236,29 +236,29 @@ void DriveTrain::Drive(int vel, Direction d)
   L.drive(d * MOTOR_CALIB * vel);
 }
 
-void DriveTrain::MakeWallParallel(UltraSonic* follower)
+void DriveTrain::MakeWallParallel(UltraSonic* follower, float searchWindowAngle)
 {
-    Turn(-20);
-    L.drive(60);
-    R.drive(-60);
-
-    float dist = follower->getDist();
-    float currDist;
-
-    delay(200);
-    while (true)
+  static float angleIncrement = (2.f * searchWindowAngle) / 10.f;
+  
+  chasis.Turn(-1.f * searchWindowAngle);
+ 
+  // Sweep to find block
+  float minDist = 500.f;
+  float minAngle = 0.f;
+  float dist = 500.f;
+  for (auto angle = -1.f * searchWindowAngle; angle < searchWindowAngle + 0.1f; angle += angleIncrement)
+  {
+    dist = follower->getDist();
+    if (dist < minDist)
     {
-      currDist = follower->getDist();
-      if (currDist > dist)
-      {
-        break;
-      }
-      
-      dist = currDist;
+        minAngle = angle;
+        minDist = dist;
     }
-    
-    // Turn(-15);
-    Stop();
+    chasis.Turn(angleIncrement);
+    delay(500);
+  }
+  
+  chasis.Turn(minAngle - searchWindowAngle + 5);
 }
 
 void DriveTrain::set(int vel, bool isLeft)

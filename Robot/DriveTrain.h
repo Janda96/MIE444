@@ -27,6 +27,8 @@ public:
 
   DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase);
 
+  void MakeWallParallel(UltraSonic* follower, float searchWindowAngle);
+
 private:
 
   ErrorCode ClearObstacle();
@@ -39,8 +41,6 @@ private:
   
   // Control loop to make sure driving straight
   void UpdateSpeed(float wallDist, bool isLeft);
-
-  void MakeWallParallel(UltraSonic* follower);
 
 private: /* DATA */
   
