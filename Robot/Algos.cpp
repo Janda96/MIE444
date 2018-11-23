@@ -127,7 +127,7 @@ bool isBlockDetected()
 
 void TurnTowardsBlock(float searchWindowAngle)
 {
-  static float angleIncrement = (2.f * searchWindowAngle) / 10.f;
+  static float angleIncrement = (2.f * searchWindowAngle) / 20.f;
   
   chasis.Turn(-1.f * searchWindowAngle);
  
@@ -150,7 +150,7 @@ void TurnTowardsBlock(float searchWindowAngle)
   }
   
 
-  chasis.Turn(minAngle - searchWindowAngle + 5);
+  chasis.Turn(minAngle - searchWindowAngle + 50);
   Serial.println();
   Serial.println(minAngle);
 }
