@@ -143,7 +143,7 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 
 void DriveTrain::Turn(float angle)
 {
-  static int turnSpeed = 100;
+  static int turnSpeed = 75;
 
   angle = angle * DEG2RAD;
 
