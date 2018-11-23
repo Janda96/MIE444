@@ -33,23 +33,33 @@
 #define GIE INTCONbits.GIE
 #define PEIE INTCONbits.PEIE
 
-#define D_STEP 0.00928197829
+#define D_STEP 0.02992431454
 
-#define WB 0.1524
+#define WB 18.2
 
-#define tx_buf_max 64
+#define TX_BUF_SIZE 32
 
-char rx_byte = 0x0;
-char tx_bytes[14];
-long El = 0x0000;
-long Er = 0x0000;
-
-long prevEl = 0;
-long prevEr = 0;
+//#define x pos.f[0]
+//#define y pos.f[1]
+//#define ang pos.f[2]
+//#define posChars pos.c
 
 double x = 0;
 double y = 0;
 double ang = 0;
+
+char rx_byte = 0x0;
+long El = 0;
+long Er = 0;
+
+long prevEl = 0;
+long prevEr = 0;
+
+// Union to convert position data from 3 doubles to chars
+//union Pose{
+//   double f[3];
+//   char c[9];
+//}pos;  
 
 double dDl = 0;
 double dDr = 0;
@@ -57,7 +67,6 @@ double dDr = 0;
 double R = 0;
 double dw = 0;
 
-int tx_buf[64];
 int tx_ind = 0;
 int tx_size = 0;
 
@@ -103,11 +112,11 @@ void main()
     
     GIE=1;
     while(1){
-        LED1 = 0x0040 == (El&0x0040);
-        LED2 = 0x0040 == (Er&0x0040);
+        LED1 = (El&0x0040)<<10;
+        LED2 = (Er&0x0040)<<10;
         
         GIE=0;
-        if (El != prevEl || Er != prevEr){
+        if (abs(El-prevEl)>20 || abs(Er-prevEr)>20){
             // If encoder position changed, calculated incremental distance
             dDr = (double) (Er - prevEr);
             dDr = dDr*D_STEP;
@@ -118,18 +127,20 @@ void main()
             dw = (dDr-dDl)/WB;
             
             x = x + R*cos( ang + dw/2 );
-            y = y + R*cos( ang + dw/2 );
+            y = y + R*sin( ang + dw/2 );
             ang = ang + dw;
+            prevEl = El;
+            prevEr = Er;
+            
         }
         GIE=1;
-        
         
     }
     
     
 }
 
-volatile void blinky(){
+void blinky(){
     for (int i=0; i<10; ++i){
         LED1 = 1;
         LED2 = 1;
@@ -164,47 +175,56 @@ void __interrupt() isr(void){
             IntM2EA=0;
             IntM2EA=0;
             if(M2EB){
-                Er++;
-            }else{
                 Er--;
+            }else{
+                Er++;
             }
             
         }
         if (IntM2EB){
             IntM2EB=0;
             if(M2EA){
-                Er--;
-            }else{
                 Er++;
+            }else{
+                Er--;
             }
         }
         
     }
     else if(PIR3bits.TX1IF){
         // Serial Send interrupt
-        if (UARTSendNext(*tx_buf, *tx_ind)){
-            
+        if (UARTSendNext()){
+            PIE3bits.TX1IE = 0;
         }
     }
     else if(PIR3bits.RC1IF){
         // Serial receive interrupt
         // Load the input buffer to be looked at
         rx_byte = RC1REG;
-        //TX1REG = rx_byte;
+        
+        
+        
         
         if (rx_byte == 'a'){
             // If received command 'a', transmit location estimate
             int length = 0;
-            length += snprintf(tx_buf+length, tx_buf_max , "efg");
-            length += snprintf(tx_buf+length, tx_buf_max , "hij");
-            length += snprintf(tx_buf+length, tx_buf_max , "abc");
+            // Each double is 24 bit, 3 byte
             
+            tx_size = 9;
+            tx_ind = 0;
             
             PIE3bits.TX1IE = 1;
+            UARTSendNext();
             
-            
-            
-        } else {
+        } else if(rx_byte == 'b'){
+            // If received command 'b', clear location estimate
+            x = 0;
+            y = 0;
+            ang = 0;
+            TX1REG = '@';
+          
+        }
+        else {
             // If received action is not handled, send it back through serial
             TX1REG = rx_byte;
         }

@@ -4,8 +4,12 @@
 #include"Config.h"
 
 
-int tx_ind = 0;
-int tx_size = 0;
+extern int tx_ind;
+extern int tx_size;
+//extern union Pose{
+//   double f[3];
+//   char c[9];
+//}pos;
 
 void UARTInit(const uint32_t baud_rate) 
 {
@@ -43,13 +47,12 @@ void UARTSendByte(const char c)
     while (TX1STAbits.TRMT == 0);
 }
 
-char UARTSendNext(int *tx_buf, int *tc_ind) 
+char UARTSendNext() 
 {
     // Set data in transmit register
-    TX1REG = tx_buf[];
-    
-    // Wait for data to send
-    while (TX1STAbits.TRMT == 0);
+    TX1REG = 0x00;
+    ++tx_ind;
+    return (tx_ind >= tx_size);
 }
 
 char UARTReadByte() 
