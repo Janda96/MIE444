@@ -27,13 +27,17 @@ ErrorCode DriveTrain::FollowWall(UltraSonic& follower, bool isLeft)
     float wallDist = 0.f;
     while (!isObsticalDetected())
     {
-      
       // Avoid wall if gets too close
       AvoidWall();  
 
       // Control
       wallDist = follower.getDist();
       UpdateSpeed(wallDist, isLeft);
+
+      if (wallDist > WALL_DETECT_DIST)
+      {
+        break;
+      }
       
       delay(100); // Might be unnecessary
     }
@@ -143,7 +147,7 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 
 void DriveTrain::Turn(float angle)
 {
-  static int turnSpeed = 75;
+  static int turnSpeed = 100;
 
   angle = angle * DEG2RAD;
 
@@ -151,7 +155,7 @@ void DriveTrain::Turn(float angle)
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
 
-  float DelayGain = angle > 0 ? 0.13f : 0.13f;
+  float DelayGain = angle > 0 ? 0.125f : 0.125f;
 
   float turnDist = wheelbase / 2.f * abs(angle);
   float currDist = 0.f;
