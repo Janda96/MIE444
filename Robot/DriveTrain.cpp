@@ -42,6 +42,8 @@ ErrorCode DriveTrain::FollowWall(UltraSonic& follower, bool isLeft)
       
       delay(100); // Might be unnecessary
     }
+    
+    Stop();
     return ObstacleDetected;
 }
 
@@ -204,8 +206,6 @@ void DriveTrain::AvoidWall(UltraSonic& DistSensor, bool isLeft)
 
 ErrorCode DriveTrain::LostWall(bool isLeft)
 {
-    Serial3.println("LOST WALL!!");
-
     // Stop for a second
     Stop();
     delay(1000);
