@@ -317,3 +317,23 @@ void Localize()
   }
   SendLocMeasurements();
 }
+
+void RemoteControl()
+{
+  int drive;
+  int turn;
+  while (true){
+    if(Serial3.available()>0){
+      if(Serial3.read() == 'd'){
+        drive = Serial3.parseInt();
+        turn = Serial3.parseInt();
+        chasis.Drive(drive, Forward);
+        if(turn == 1){
+          chasis.Turn(10);
+          Serial3.flush();
+          }
+      }
+    }  
+  }
+  
+}

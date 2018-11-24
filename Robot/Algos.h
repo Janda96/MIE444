@@ -19,6 +19,9 @@ void Localize();
 // Utility functions
 bool isLoadingZone();
 
+// Crystal remote control
+void RemoteControl();
+
 //------BLOCK PICKUP-----
 
 bool isBlockDetected();

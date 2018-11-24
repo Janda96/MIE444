@@ -50,6 +50,6 @@ void loop()
 
   // Verify orientaton tracking
   chasis.Turn(-90.f);
-  Serial3.println(chasis.getLook());
+  Serial.println(chasis.getLook());
   delay(2000);
 }
