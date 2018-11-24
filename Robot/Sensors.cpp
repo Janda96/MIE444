@@ -35,22 +35,13 @@ trig(trigPin, false)
 
 float IRDist::getDist()
 {
-//  float sum = 0.f;
-//  for (auto i = 0; i < 3; ++i)
-//  {
-//    // Convert to volts
-//    float volts = readValue() * 0.0048828125f;
-//
-//    // Convert to distance
-//    // return 13.f * pow(volts, -1);
-//    // sum += volts;
-//    sum += IRDTunning / volts;
-//  }
-//  return sum / 3.f;
-  
   // Convert to volts
   float volts = readValue() * 0.0048828125f;
+
+  // Constrain
   volts = constrain(volts, vMin, vMax);
+
+  // Convert to distance and return
   return IRDTunning / volts;
 }
 
