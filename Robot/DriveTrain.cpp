@@ -271,9 +271,6 @@ void DriveTrain::MakeWallParallel(UltraSonic* follower, float searchWindowAngle)
 
 void DriveTrain::updateOrientation(float angle)
 {
-  // Adjust for the reverse
-  angle = -1.f * angle;
-  
   float c_th = cos(angle);
   float s_th = sin(angle);
   
