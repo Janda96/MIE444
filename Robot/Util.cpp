@@ -13,7 +13,7 @@ LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 
 bool fuzzyComp(float a, float b)
 {
-  return (a - b) < 0.01f;
+  return abs(a - b) < 0.1f;
 }
 
 Orientation getOrientation(Point L)
