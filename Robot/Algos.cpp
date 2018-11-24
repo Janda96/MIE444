@@ -133,7 +133,6 @@ void LzToDz2()
   
   chasis.FollowWall(US.R, false);     // Follow right wall
   
-  chasis.Stop();
   delay(500);
   
   chasis.LookFor(US.L);               // Look for left wall (drive forward)
@@ -149,12 +148,24 @@ void LzToDz3()
 {
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Turn(-90);                   // Turn right 90 degrees
+  
+  chasis.Stop();
+  delay(500);
+  
   chasis.FollowWall(US.L, true);      // Follow Left wall
   chasis.LookFor(US.R);               // Look for right wall
-  chasis.Turn(90);                    // Turn left 90 degrees
   chasis.FollowWall(US.R, false);     // Follow right wall
-  chasis.LookFor(US.L);               // Look for left wall (drive forward)
-  chasis.FollowWall(US.L, true);      // Follow left wall
+  chasis.Turn(90);                    // Turn left 90 degrees
+  
+  chasis.Stop();
+  delay(500);
+  
+  chasis.FollowWall(US.R, false);     // Follow right wall
+  
+  delay(500);
+  
+  chasis.LookFor(US.R);               // Look for Right wall (drive forward)
+  chasis.FollowWall(US.R, false);     // Follow Right wall
   chasis.LostWall(false);             // Lost wall turn right
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Stop();                      // Stop and drop off
@@ -167,6 +178,7 @@ void LzToDz4()
   chasis.FollowWall(US.R, false);     // Follow left wall
   chasis.Turn(90);                    // Turn left 90 degrees
   chasis.LookFor(US.L);               // Look for left wall
+  chasis.FollowWall(US.L, true);      // Look for left wall
   chasis.LostWall(true);              // Lost wall turn left
   chasis.FollowWall(US.R, false);     // Follow right wall
   chasis.Stop();
