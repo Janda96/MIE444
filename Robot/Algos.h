@@ -13,6 +13,9 @@ void LzToDz2();
 void LzToDz3();
 void LzToDz4();
 
+// Localization data
+void Localize();
+
 // Utility functions
 bool isLoadingZone();
 
