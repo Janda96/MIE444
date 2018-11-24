@@ -30,7 +30,7 @@ void loop()
   //delay(2000);
   // Get from loading zone to drop off zone
   //delay(1000);
-  LzToDz2();
+  // LzToDz2();
   // LzToDz2();
   // LzToDz3();
   // LzToDz4();
@@ -45,6 +45,11 @@ void loop()
   //TurnTowardsBlock(60.f);
   //chasis.Drive(100, Forward);
   //delay(500);
-  chasis.Stop();
-  while (true);
+  // chasis.Stop();
+  // while (true);
+
+  // Verify orientaton tracking
+  chasis.Turn(-90.f);
+  Serial3.println(chasis.getLook());
+  delay(2000);
 }
