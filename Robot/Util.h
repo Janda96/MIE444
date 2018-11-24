@@ -8,3 +8,5 @@
 
 // LCD
 extern LiquidCrystal lcd;
+
+Orientation getOrientation(Point L);
