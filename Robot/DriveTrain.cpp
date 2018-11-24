@@ -36,12 +36,12 @@ ErrorCode DriveTrain::FollowWall(UltraSonic& follower, bool isLeft)
 
       if (wallDist > WALL_DETECT_DIST)
       {
-        break;
+        return WallDisapeared;
       }
       
       delay(100); // Might be unnecessary
     }
-    return OK;
+    return ObstacleDetected;
 }
 
 ErrorCode DriveTrain::LookFor(UltraSonic& follower)
