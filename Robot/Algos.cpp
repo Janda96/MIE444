@@ -165,6 +165,10 @@ void LzToDz3()
   delay(500);
   
   chasis.LookFor(US.R);               // Look for Right wall (drive forward)
+
+  chasis.Stop();
+  delay(500);
+  
   chasis.FollowWall(US.R, false);     // Follow Right wall
   chasis.LostWall(false);             // Lost wall turn right
   chasis.FollowWall(US.L, true);      // Follow left wall
