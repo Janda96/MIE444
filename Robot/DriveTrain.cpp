@@ -161,7 +161,7 @@ void DriveTrain::Turn(float angle)
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
 
-  float DelayGain = angle > 0 ? 400.f : 400.f;
+  float DelayGain = angle > 0 ? 380.f : 380.f;
 
   float turnDist = wheelbase / 2.f * abs(angle);
   float currDist = 0.f;
