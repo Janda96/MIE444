@@ -17,10 +17,21 @@ void GetToLZ()
   {
       // Find orientation
       if (chasis.getLook() == Left)
-      {    
-          // keep going left until wall hit
-          // By following the left wall
-          err = chasis.FollowWall(US.L, true);
+      {   
+          if (US.L.getDist() < 100.f)
+          {
+            // keep going left until wall hit
+            // By following the left wall
+            err = chasis.FollowWall(US.L, true);
+          }
+          else if (US.R.getDist() < 100.f)
+          {
+            err = chasis.FollowWall(US.R, false);
+          }
+          else
+          {
+            err = chasis.LookFor(US.L);
+          }
 
           // if wall hit turn up
           if (err == ObstacleDetected)
@@ -40,8 +51,6 @@ void GetToLZ()
       }
       if (chasis.getLook() == Up)
       { 
-        chasis.Drive(100.f, Forward);
-        
         // look for left wall disappearing
         err = chasis.FollowWall(US.L, true);      // Follow left wall
 
@@ -62,7 +71,7 @@ void GetToLZ()
             // If cannot go left, go down
             if (US.L.getDist() < 100.f)
             {
-              chasis.Turn(180.f);
+              chasis.Turn(-180.f);
             }
             // Go left if clear
             else
@@ -74,14 +83,14 @@ void GetToLZ()
       if (chasis.getLook() == Down)
       {
         // look for left wall disappearing
-        err = chasis.FollowWall(US.R, true);      // Follow left wall
+        err = chasis.FollowWall(US.R, false);      // Follow right wall
         if (err == WallDisapeared)
         {
           chasis.LostWall(false);
         }
         else
         {
-          chasis.ClearObstical();
+          chasis.ClearObstacle();
         }
     }
   }
@@ -168,9 +177,9 @@ bool inLoadingZone()
   // Case 1
   if (chasis.getLook() == Up)
   {
-    if (US.F.getDist() < 100.f && US.L.getDist() < 100.f)
+    if (US.F.getDist() < 150.f && US.L.getDist() < 150.f)
     {
-      if (US.R.getDist() > 100.f && US.B.getDist() > 100.f)
+      if (US.R.getDist() > 150.f && US.B.getDist() > 150.f)
       {
         return true;
       }
@@ -184,9 +193,9 @@ bool inLoadingZone()
   // Case 2
   else if (chasis.getLook() == Left)
   {
-    if (US.F.getDist() < 100.f && US.R.getDist() < 100.f)
+    if (US.F.getDist() < 150.f && US.R.getDist() < 150.f)
     {
-      if (US.L.getDist() > 100.f && US.B.getDist() > 100.f)
+      if (US.L.getDist() > 150.f && US.B.getDist() > 150.f)
       {
         return true;
       }
