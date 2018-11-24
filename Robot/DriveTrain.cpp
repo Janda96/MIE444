@@ -8,7 +8,8 @@
 #include "Modules.h"
 
 // Preprocessor definitions
-#define DEG2RAD 180.f / 3.14f
+#define DEG2RAD 3.14f / 180.f
+#define RAD2DEG 180.f / 3.14f
 
 // Motor Related
 #define MAX_SPEED 150
@@ -148,7 +149,7 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 void DriveTrain::Turn(float angle)
 {
   static int turnSpeed = 100;
-  
+
   angle = angle * DEG2RAD;
 
   // Update orientation
@@ -158,7 +159,7 @@ void DriveTrain::Turn(float angle)
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
 
-  float DelayGain = angle > 0 ? 0.125f : 0.125f;
+  float DelayGain = angle > 0 ? 400.f : 400.f;
 
   float turnDist = wheelbase / 2.f * abs(angle);
   float currDist = 0.f;
@@ -282,6 +283,15 @@ void DriveTrain::updateOrientation(float angle)
   // Perform rotation
   Look.x = c_th * x - s_th * y;
   Look.y = s_th * x + c_th * y;
+
+  // Remove truncation error
+  Look.x = fuzzyComp(Look.x, 0.f) ? 0.f : Look.x;
+  Look.x = fuzzyComp(Look.x, 1.f) ? 1.f : Look.x;
+  Look.x = fuzzyComp(Look.x, -1.f) ? -1.f : Look.x;
+
+  Look.y = fuzzyComp(Look.y, 0.f) ? 0.f : Look.y;
+  Look.y = fuzzyComp(Look.y, 1.f) ? 1.f : Look.y;
+  Look.y = fuzzyComp(Look.y, -1.f) ? -1.f : Look.y;
 }
 
 Orientation DriveTrain::getLook()
