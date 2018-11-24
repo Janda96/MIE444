@@ -6,6 +6,7 @@
 #include "Arduino.h"
 #include "Modules.h"
 #include "Types.h"
+#include "Util.h"
 
 ErrorCode err = OK;
 
@@ -129,6 +130,40 @@ void LzToDz4()
 
 bool isLoadingZone()
 {
+  // Case 1
+  if (chasis.getLook() == Up)
+  {
+    if (US.F.getDist() < 100.f && US.L.getDist() < 100.f)
+    {
+      if (US.R.getDist() > 100.f && US.B.getDist() > 100.f)
+      {
+        return true;
+      }
+      return false;
+    }
+    else
+    {
+      return false;
+    }
+  }
+  // Case 2
+  else if (chasis.getLook() == Left)
+  {
+    if (US.F.getDist() < 100.f && US.R.getDist() < 100.f)
+    {
+      if (US.L.getDist() > 100.f && US.B.getDist() > 100.f)
+      {
+        return true;
+      }
+      return false;
+    }
+    else
+    {
+      return false;
+    }
+  }
+
+  // Default Not in loading zone
   return false;
 }
 
