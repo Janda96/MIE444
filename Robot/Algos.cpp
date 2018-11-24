@@ -13,13 +13,10 @@ ErrorCode err = OK;
 // Get to loading zone from random starting location
 void GetToLZ()
 {
-  Pose p;
-  float var;
   while (!isLoadingZone())
   {
       // Find orientation
-      Locator.getPose(p, var);
-      if (p.O == Left)
+      if (chasis.getLook() == Left)
       {
           // keep going left until wall hit
           // By following the left wall
@@ -37,7 +34,7 @@ void GetToLZ()
               chasis.LookFor(US.L);  
           }
       }
-      if (p.O == Up)
+      if (chasis.getLook() == Up)
       {
         // look for left wall disappearing
         err = chasis.FollowWall(US.L, true);      // Follow left wall
