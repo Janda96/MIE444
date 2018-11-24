@@ -17,7 +17,7 @@ void LzToDz4();
 void Localize();
 
 // Utility functions
-bool isLoadingZone();
+bool inLoadingZone();
 
 //------BLOCK PICKUP-----
 

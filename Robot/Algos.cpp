@@ -13,11 +13,11 @@ ErrorCode err = OK;
 // Get to loading zone from random starting location
 void GetToLZ()
 {
-  while (!isLoadingZone())
+  while (!inLoadingZone())
   {
       // Find orientation
       if (chasis.getLook() == Left)
-      {
+      {    
           // keep going left until wall hit
           // By following the left wall
           err = chasis.FollowWall(US.L, true);
@@ -25,7 +25,11 @@ void GetToLZ()
           // if wall hit turn up
           if (err == ObstacleDetected)
           {
-              chasis.Turn(-90);
+            if (inLoadingZone())
+            {
+              return;
+            }
+            chasis.Turn(-90.f);
           }
 
           // if wall disappears look for left wall
@@ -35,7 +39,9 @@ void GetToLZ()
           }
       }
       if (chasis.getLook() == Up)
-      {
+      { 
+        chasis.Drive(100.f, Forward);
+        
         // look for left wall disappearing
         err = chasis.FollowWall(US.L, true);      // Follow left wall
 
@@ -44,10 +50,42 @@ void GetToLZ()
         {
             chasis.LostWall(true);
         }
+
+        // if wall hit
+        if (err == ObstacleDetected)
+        {
+            if (inLoadingZone())
+            {
+              return;
+            }
+            
+            // If cannot go left, go down
+            if (US.L.getDist() < 100.f)
+            {
+              chasis.Turn(180.f);
+            }
+            // Go left if clear
+            else
+            {
+              chasis.Turn(90.f);
+            }
+        }
       }
+      if (chasis.getLook() == Down)
+      {
+        // look for left wall disappearing
+        err = chasis.FollowWall(US.R, true);      // Follow left wall
+        if (err == WallDisapeared)
+        {
+          chasis.LostWall(false);
+        }
+        else
+        {
+          chasis.ClearObstical();
+        }
     }
   }
-
+}
 
 // Travel from Loading zone to top left
 // drop off zone
@@ -125,7 +163,7 @@ void LzToDz4()
   chasis.Stop();
 }
 
-bool isLoadingZone()
+bool inLoadingZone()
 {
   // Case 1
   if (chasis.getLook() == Up)
