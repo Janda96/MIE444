@@ -8,11 +8,11 @@ function [pnew, heading] = move(p, mask, heading, Move)
    disp(['heading: ' num2str(heading)])
    
    %direction  
-   if Move == 'a',
+   if Move == 'L',
         heading = mod(heading + 90,360);
-   elseif Move == 'd',
+   elseif Move == 'R',
 		heading = mod(heading - 90,360);
-   elseif Move == 's',
+   elseif Move == 'D',
 		heading = mod(heading + 180,360);
    end
    
