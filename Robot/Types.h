@@ -27,6 +27,12 @@ enum Orientation
   Right = 3,
 };
 
+struct Point
+{
+   float x;
+   float y;
+};
+
 struct Pose
 {
    float x;

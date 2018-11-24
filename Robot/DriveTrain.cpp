@@ -148,8 +148,11 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 void DriveTrain::Turn(float angle)
 {
   static int turnSpeed = 100;
-
+  
   angle = angle * DEG2RAD;
+
+  // Update orientation
+  updateOrientation(angle);
 
   // Find the direction the wheels have to turn
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
@@ -265,6 +268,27 @@ void DriveTrain::MakeWallParallel(UltraSonic* follower, float searchWindowAngle)
   chasis.Turn(minAngle - searchWindowAngle + 5);
 }
 
+void DriveTrain::updateOrientation(float angle)
+{
+  // Adjust for the reverse
+  angle = -1.f * angle;
+  
+  float c_th = cos(angle);
+  float s_th = sin(angle);
+  
+  float x = Look.x;
+  float y = Look.y;
+
+  // Perform rotation
+  Look.x = c_th * x - s_th * y;
+  Look.y = s_th * x + c_th * y;
+}
+
+Orientation DriveTrain::getLook()
+{
+  return getOrientation(Look);
+}
+
 void DriveTrain::set(int vel, bool isLeft)
 {
   isLeft ? L.drive(vel) : R.drive(vel);
@@ -286,4 +310,7 @@ R(R),
 US(US),
 wheelbase(wheelbase)
 {
+  // Starting orientation is to the left
+  Look.x = -1.f;
+  Look.y = 0.f;
 }

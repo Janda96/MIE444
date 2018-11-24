@@ -6,6 +6,7 @@
 #include "Types.h"
 #include "IO.h"
 #include "Sensors.h"
+#include "Util.h"
 
 class DriveTrain
 {
@@ -29,6 +30,8 @@ public:
 
   void MakeWallParallel(UltraSonic* follower, float searchWindowAngle);
 
+  Orientation getLook();
+
 private:
 
   ErrorCode ClearObstacle();
@@ -41,6 +44,8 @@ private:
   
   // Control loop to make sure driving straight
   void UpdateSpeed(float wallDist, bool isLeft);
+
+  void updateOrientation(float angle);
 
 private: /* DATA */
   
@@ -60,6 +65,9 @@ private: /* DATA */
   // Derivative Estimate
   float prevDist;
   unsigned long prevTime;
+
+  // Orientation
+  Point Look;
 
   ErrorCode m_err = OK;
 };
