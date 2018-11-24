@@ -32,9 +32,9 @@ public:
 
   Orientation getLook();
 
-private:
-
   ErrorCode ClearObstacle();
+
+private:
 
   bool isObsticalDetected();
 

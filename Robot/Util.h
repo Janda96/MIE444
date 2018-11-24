@@ -10,3 +10,5 @@
 extern LiquidCrystal lcd;
 
 Orientation getOrientation(Point L);
+
+bool fuzzyComp(float a, float b);
