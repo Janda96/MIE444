@@ -1,7 +1,7 @@
 %provide measurements and movements
 heading = 180; %180 degrees implied left
-m_u = zeros(1,4); %will be filled with ultrasonic results for 25 steps
-m_m = zeros(1,4); %will be filled with directions for 25 steps
+m_u = zeros(1,20); %will be filled with ultrasonic results for 25 steps
+m_m = zeros(1,20); %will be filled with directions for 25 steps
 
 %open serial port, read from it, close it
 delete(instrfindall);

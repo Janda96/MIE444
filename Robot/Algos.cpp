@@ -17,7 +17,7 @@ void GetToLZ()
   {
       // Find orientation
       if (chasis.getLook() == Left)
-      {   
+      {
           if (US.L.getDist() < 100.f)
           {
             // keep going left until wall hit
@@ -46,11 +46,11 @@ void GetToLZ()
           // if wall disappears look for left wall
           if (err == WallDisapeared)
           {
-              chasis.LookFor(US.L);  
+              chasis.LookFor(US.L);
           }
       }
       if (chasis.getLook() == Up)
-      { 
+      {
         // look for left wall disappearing
         err = chasis.FollowWall(US.L, true);      // Follow left wall
 
@@ -67,7 +67,7 @@ void GetToLZ()
             {
               return;
             }
-            
+
             // If cannot go left, go down
             if (US.L.getDist() < 100.f)
             {
@@ -119,22 +119,22 @@ void LzToDz2()
 {
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Turn(-90);                   // Turn right 90 degrees
-  
+
   chasis.Stop();
   delay(500);
-  
+
   chasis.FollowWall(US.L, true);      // Follow Left wall
   chasis.LookFor(US.R);               // Look for right wall
   chasis.FollowWall(US.R, false);     // Follow right wall
   chasis.Turn(90);                    // Turn left 90 degrees
-  
+
   chasis.Stop();
   delay(500);
-  
+
   chasis.FollowWall(US.R, false);     // Follow right wall
-  
+
   delay(500);
-  
+
   chasis.LookFor(US.L);               // Look for left wall (drive forward)
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.LostWall(true);              // Lost wall turn left
@@ -148,27 +148,27 @@ void LzToDz3()
 {
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Turn(-90);                   // Turn right 90 degrees
-  
+
   chasis.Stop();
   delay(500);
-  
+
   chasis.FollowWall(US.L, true);      // Follow Left wall
   chasis.LookFor(US.R);               // Look for right wall
   chasis.FollowWall(US.R, false);     // Follow right wall
   chasis.Turn(90);                    // Turn left 90 degrees
-  
+
   chasis.Stop();
   delay(500);
-  
+
   chasis.FollowWall(US.R, false);     // Follow right wall
-  
+
   delay(500);
-  
+
   chasis.LookFor(US.R);               // Look for Right wall (drive forward)
 
   chasis.Stop();
   delay(500);
-  
+
   chasis.FollowWall(US.R, false);     // Follow Right wall
   chasis.LostWall(false);             // Lost wall turn right
   chasis.FollowWall(US.L, true);      // Follow left wall
@@ -231,16 +231,16 @@ bool isBlockDetected()
 {
 	float topDist = US.F.getDist();
 	float bottomDist = IRD.getDist();
-	
+
 	return topDist > 200.f && bottomDist < 200.f;
 }
 
 void TurnTowardsBlock(float searchWindowAngle)
 {
   static float angleIncrement = (2.f * searchWindowAngle) / 20.f;
-  
+
   chasis.Turn(-1.f * searchWindowAngle);
- 
+
   // Sweep to find block
   float minDist = 500.f;
   float minAngle = 0.f;
@@ -258,7 +258,7 @@ void TurnTowardsBlock(float searchWindowAngle)
     Serial.println(angle);
     Serial.println(dist);
   }
-  
+
 
   chasis.Turn(minAngle - searchWindowAngle + 50);
   Serial.println();
@@ -365,8 +365,8 @@ void SendLocMeasurements()
 {
   for (auto i = 0; i < NUM_MEASUREMENTS; ++i)
   {
-    Serial.println(orientationArr[i]);
-    Serial.println(USReadingArr[i]);
+    Serial3.println(USReadingArr[i]);
+    Serial3.println(orientationArr[i]);
   }
 }
 
@@ -380,4 +380,47 @@ void Localize()
     chasis.Stop();
   }
   SendLocMeasurements();
+}
+
+void BlockPickup(){
+  int pos = 180;
+  // Turn servo down (180) degree to touch the block
+  for (pos = 180; pos >= 0; pos -= 1) {
+    MyServo.write(pos);
+    delay(20);
+  }
+  // Wait for 1s before raising arm
+  delay (1000);
+  // Raise arm by turning servo up (40) degree to lift block
+  for (pos = 0; pos <= 40; pos += 1) {
+    MyServo.write(pos);
+    delay(40);
+  }
+}
+
+void BlockDropoff(){
+    int pos = MyServo.read();
+    for (pos; pos <= 180; pos += 1) {
+      MyServo.write(pos);
+      delay(40);
+    }
+}
+
+void RemoteControl()
+{
+  int drive;
+  int turn;
+  while (true){
+    if(Serial3.available()>0){
+      if(Serial3.read() == 'd'){
+        drive = Serial3.parseInt();
+        turn = Serial3.parseInt();
+        chasis.Drive(drive, Forward);
+        if(turn == 1){
+          chasis.Turn(10);
+          Serial3.flush();
+          }
+      }
+    }
+  }
 }

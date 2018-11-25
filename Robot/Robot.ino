@@ -18,6 +18,7 @@ void setup()
   lcd.begin(20, 4);
   Serial3.begin(9600);
   Serial.begin(9600);
+  MyServo.attach(SERVO_PWM);  
 }
 
 void loop() 
@@ -50,6 +51,6 @@ void loop()
 
   // Verify orientaton tracking
   chasis.Turn(-90.f);
-  Serial3.println(chasis.getLook());
+  Serial.println(chasis.getLook());
   delay(2000);
 }
