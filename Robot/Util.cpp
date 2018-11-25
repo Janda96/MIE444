@@ -46,3 +46,22 @@ Orientation getOrientation(Point L)
   // [NOTE: May need to change to error value]
   return Left;
 }
+
+void ReadEncoder(double& x, double& y, double& angle)
+{
+  Serial1.print('a');
+  
+  union encoderVals enc; 
+  Serial1.readBytes(enc.raw, 12);    
+
+  x = enc.vals[0];
+  y = enc.vals[1];
+  angle = enc.vals[2];
+
+  for (auto i = 0; i < 12; ++i)
+  {
+    Serial.print(enc.raw[i], HEX);
+    Serial.print(" ");
+  }
+  Serial.println();
+}

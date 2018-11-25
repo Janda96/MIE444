@@ -39,3 +39,9 @@ struct Pose
    float y;
    Orientation O;
 };
+
+union encoderVals
+{
+  double vals[3];
+  char raw[12];
+};
