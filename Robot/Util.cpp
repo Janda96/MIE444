@@ -50,18 +50,32 @@ Orientation getOrientation(Point L)
 void ReadEncoder(double& x, double& y, double& angle)
 {
   Serial1.print('a');
+  int rx_byte;
   
   union encoderVals enc; 
-  Serial1.readBytes(enc.raw, 12);    
 
+  // Read all 12 bytes seperately
+    for (auto i = 0; i < 12; ++i)
+  {
+    // wait for serial byte to come in
+    while(Serial1.available() == 0);
+
+    // Read serial byte
+    rx_byte = Serial1.read();
+
+    // Cast to char
+    // and take the top byte of the int
+    enc.raw[i] = (char) rx_byte;
+  }
+  
+  //Get rid of the end byte
+  while(Serial1.available() == 0);
+  Serial1.read();
+  Serial1.flush();
+
+  // Cast to output variables
   x = enc.vals[0];
   y = enc.vals[1];
   angle = enc.vals[2];
 
-  for (auto i = 0; i < 12; ++i)
-  {
-    Serial.print(enc.raw[i], HEX);
-    Serial.print(" ");
-  }
-  Serial.println();
 }
