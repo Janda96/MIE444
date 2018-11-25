@@ -38,3 +38,6 @@ DriveTrain chasis(leftMotor, rightMotor, US, 10);
 
 // Localization
 Loc Locator(IRA);
+
+//Servo
+Servo MyServo;

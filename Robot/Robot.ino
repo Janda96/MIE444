@@ -18,6 +18,7 @@ void setup()
   lcd.begin(20, 4);
   Serial3.begin(9600);
   Serial.begin(9600);
+  MyServo.attach(SERVO_PWM);  
 }
 
 void loop() 

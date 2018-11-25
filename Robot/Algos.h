@@ -22,6 +22,10 @@ bool inLoadingZone();
 // Crystal remote control
 void RemoteControl();
 
+// Block functions
+void BlockPickup();
+void BlockDropoff();
+
 //------BLOCK PICKUP-----
 
 bool isBlockDetected();
