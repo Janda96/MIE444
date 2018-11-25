@@ -341,6 +341,7 @@ void TakeLocMeasurement(int ind)
 
   char look;
   Orientation O = chasis.getLook();
+  Serial.print(O);
   if (O == Up)
   {
     look = 'U';
@@ -364,8 +365,8 @@ void SendLocMeasurements()
 {
   for (auto i = 0; i < NUM_MEASUREMENTS; ++i)
   {
-    Serial3.println(orientationArr[i]);
-    Serial3.println(USReadingArr[i]);
+    Serial.println(orientationArr[i]);
+    Serial.println(USReadingArr[i]);
   }
 }
 
