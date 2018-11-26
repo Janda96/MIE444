@@ -363,11 +363,36 @@ void TakeLocMeasurement(int ind)
 
 void SendLocMeasurements()
 {
-  for (auto i = 0; i < NUM_MEASUREMENTS; ++i)
+  char USReading = getMappedUSReadings();
+  char look;
+  Orientation O = chasis.getLook();
+  Serial.print(O);
+  if (O == Up)
   {
-    Serial3.println(USReadingArr[i]);
-    Serial3.println(orientationArr[i]);
+    look = 'U';
   }
+  if (O == Down)
+  {
+    look = 'D';
+  }
+  if (O == Left)
+  {
+    look = 'L';
+  }
+  if (O == Right)
+  {
+    look = 'R';
+  }
+
+  Serial3.println(USReading);
+  Serial3.println(look);
+
+  // for (auto i = 0; i < NUM_MEASUREMENTS; ++i)
+  // {
+  //   Serial3.println(USReadingArr[i]);
+  //   Serial3.println(orientationArr[i]);
+  // }
+
 }
 
 void Localize()
