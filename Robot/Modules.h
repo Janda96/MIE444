@@ -8,7 +8,6 @@
 // Custom Includes
 #include "DriveTrain.h"
 #include "Sensors.h"
-#include "Loc.h"
 
 // Chasis
 extern DriveTrain chasis;
@@ -22,8 +21,6 @@ extern IRArray IRA;
 // IR Distance Sensor
 extern IRDist IRD;
 
-// Localization
-extern Loc Locator;
 
 // Servo
 extern Servo MyServo;

@@ -6,6 +6,7 @@
 // Custom Includes
 #include "Arduino.h"
 #include "Modules.h"
+#include "Algos.h"
 
 // Preprocessor definitions
 #define DEG2RAD 3.14f / 180.f
