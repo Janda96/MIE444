@@ -3,6 +3,7 @@
 // Standard Includes
 #include <Arduino.h>
 #include <LiquidCrystal.h>
+#include <Servo.h>
 
 // Custom Includes
 #include "DriveTrain.h"
@@ -23,3 +24,6 @@ extern IRDist IRD;
 
 // Localization
 extern Loc Locator;
+
+// Servo
+extern Servo MyServo;
