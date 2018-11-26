@@ -14,10 +14,10 @@ extern "C" {
 
 #include <stdint.h>
     
-#define UART_TRIS_RX TRISCbits.TRISC4
-#define UART_TRIS_TX TRISCbits.TRISC5
-#define UART_RX PORTCbits.RC4
-#define UART_TX PORTCbits.RC5
+#define UART_TRIS_RX TRISCbits.TRISC5
+#define UART_TRIS_TX TRISCbits.TRISC4
+#define UART_RX PORTCbits.RC5
+#define UART_TX PORTCbits.RC4
     
 void UARTInit(const uint32_t baud_rate);
 

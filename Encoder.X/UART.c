@@ -6,23 +6,35 @@
 
 extern int tx_ind;
 extern int tx_size;
-//extern union Pose{
-//   double f[3];
-//   char c[9];
-//}pos;
+extern char txBuf[32];
 
 void UARTInit(const uint32_t baud_rate) 
 {
-    // Set Baud rate
+    // Set up direction of RX/TX pins
+    UART_TRIS_RX = 1;
+    UART_TRIS_TX = 0;
     
+    PPSLOCK = 0x55;
+    PPSLOCK = 0xAA;
+    PPSLOCKbits.PPSLOCKED = 0x00; // unlock PPS
+    RX1DTPPSbits.RX1DTPPS = 0x15;   //RC4->EUSART1:RX1;
+    RC4PPS = 0x0F;   //RC5->EUSART1:TX1;
+    PPSLOCK = 0x55;
+    PPSLOCK = 0xAA;
+    PPSLOCKbits.PPSLOCKED = 0x01; // lock PPS
+    // Set Baud rate
     TX1STAbits.BRGH = 1;
     BAUD1CONbits.BRG16 = 1;
-    SPBRG = _XTAL_FREQ/(64*baud_rate) - 1;
+    //SPBRG = _XTAL_FREQ/(64*baud_rate) - 1;
+    SP1BRGH  = 0x03;
+    SP1BRGL  = 0x40;
     
     // TXSTA register
     TX1STAbits.TX9 = 0;      // 8-bit transmission
     TX1STAbits.TXEN = 1;     // Enable transmission
     TX1STAbits.SYNC = 0;     // Asynchronous mode
+    // Enable Serial
+    RC1STAbits.SPEN = 1;     // Enable serial port
     
     // RCSTA register
     RC1STAbits.RX9 = 0;      // 8-bit reception
@@ -30,12 +42,17 @@ void UARTInit(const uint32_t baud_rate)
     RC1STAbits.FERR = 0;     // Disable framing error
     RC1STAbits.OERR = 0;     // Disable overrun error
     
-    // Enable Serial
-    RC1STAbits.SPEN = 1;     // Enable serial port
-    
-    // Set up direction of RX/TX pins
-    UART_TRIS_RX = 1;
     UART_TRIS_TX = 0;
+    TX1REG = '1';
+    TX1REG = '2';
+    TX1REG = '3';
+    TX1REG = '4';
+    TX1REG = '5';
+    TX1REG = '6';
+    TX1REG = '7';
+    TX1REG = '8';
+    TX1REG = '9';
+    
 }
 
 void UARTSendByte(const char c) 
@@ -50,9 +67,14 @@ void UARTSendByte(const char c)
 char UARTSendNext() 
 {
     // Set data in transmit register
-    TX1REG = 0x00;
+    if(tx_ind >= tx_size){
+        TX1REG = '!';
+        return 1;
+    }else{
+    TX1REG = txBuf[tx_ind];
     ++tx_ind;
-    return (tx_ind >= tx_size);
+    return 0;
+    }
 }
 
 char UARTReadByte() 
