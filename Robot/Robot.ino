@@ -28,6 +28,8 @@ int DZInd = 0;
 
 void loop()
 {
+  lcd.print(ReadBat());
+  
   // Goal today: Get to Lz, pickup block and go to DZ
   GetToLZ();
 

@@ -80,7 +80,7 @@ void ReadEncoder(double& x, double& y, double& angle)
 
 }
 
-float ReadBat(){
+float ReadBat()
+{
   return(map(analogRead(0), 0, 1024, 0, 15));
 }
-
