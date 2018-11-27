@@ -10,9 +10,12 @@
 
 ErrorCode err = OK;
 
+voidFuncType LzToDz[4] = {&LzToDz1, &LzToDz2, &LzToDz3, &LzToDz4};
+
 // Get to loading zone from random starting location
 void GetToLZ()
 {
+  Serial3.println("Going to loading zone");
   while (!inLoadingZone())
   {
       // Find orientation
@@ -100,6 +103,8 @@ void GetToLZ()
 // drop off zone
 void LzToDz1()
 {
+  Serial3.println("Going to drop off zone 1");
+  
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Turn(-90);                   // Turn right 90 degrees
   chasis.FollowWall(US.L, true);      // Follow Left wall
@@ -117,6 +122,8 @@ void LzToDz1()
 // drop off zone
 void LzToDz2()
 {
+  Serial3.println("Going to drop off zone 2");
+    
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Turn(-90);                   // Turn right 90 degrees
 
@@ -146,6 +153,8 @@ void LzToDz2()
 // drop off zone
 void LzToDz3()
 {
+  Serial3.println("Going to drop off zone 3");
+    
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Turn(-90);                   // Turn right 90 degrees
 
@@ -179,6 +188,8 @@ void LzToDz3()
 // drop off zone
 void LzToDz4()
 {
+  Serial3.println("Going to drop off zone 4");
+    
   chasis.FollowWall(US.R, false);     // Follow left wall
   chasis.Turn(90);                    // Turn left 90 degrees
   chasis.LookFor(US.L);               // Look for left wall
@@ -255,14 +266,14 @@ void TurnTowardsBlock(float searchWindowAngle)
     }
     chasis.Turn(angleIncrement);
     delay(500);
-    Serial.println(angle);
-    Serial.println(dist);
+    Serial3.println(angle);
+    Serial3.println(dist);
   }
 
 
   chasis.Turn(minAngle - searchWindowAngle + 50);
-  Serial.println();
-  Serial.println(minAngle);
+  Serial3.println();
+  Serial3.println(minAngle);
 }
 
 // Localization Code
@@ -341,7 +352,7 @@ void TakeLocMeasurement(int ind)
 
   char look;
   Orientation O = chasis.getLook();
-  Serial.print(O);
+  Serial3.print(O);
   if (O == Up)
   {
     look = 'U';

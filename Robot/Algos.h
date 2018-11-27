@@ -1,8 +1,12 @@
+#pragma once
+
 // Standard Includes
 
 // Custom Includes
 
 //----------MAZE-------------
+
+typedef void(*voidFuncType)();
 
 // Directions to loading zone 
 void GetToLZ();
@@ -12,6 +16,9 @@ void LzToDz1();
 void LzToDz2();
 void LzToDz3();
 void LzToDz4();
+
+// Array map of loading zone to drop off zone
+extern voidFuncType LzToDz[4];
 
 // Localization data
 void Localize();
