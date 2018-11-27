@@ -20,6 +20,10 @@ public:
   
   void Drive(int vel, Direction d);
 
+  void Drive2(int vel, Direction d);
+
+  void DriveIntoWall(int vel, bool turnLeft);
+
   void Turn(float angle);
 
   void Stop();
@@ -59,12 +63,12 @@ private: /* DATA */
 
   // Control parameters
   float targetDist = 65.f;  // Target distance to follow wall
-  float kp = 0.5f;          // Proportional gain
+  float kp = 0.3f;          // Proportional gain
   float kd = -250.f;        // Differential gain
 
   // Derivative Estimate
-  float prevDist;
-  unsigned long prevTime;
+  float prevDist = targetDist;
+  unsigned long prevTime = 0;
 
   // Orientation
   Point Look;
