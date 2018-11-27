@@ -3,6 +3,7 @@
 #include <SparkFun_TB6612.h>
 
 // Custom Includes
+#include "NewPing.h"
 #include "Types.h"
 #include "IO.h"
 
@@ -16,8 +17,7 @@ public:
   
 private:
 
-  Input echo;
-  Output trig;
+  NewPing sonar;
 };
 
 class IR : private Input
