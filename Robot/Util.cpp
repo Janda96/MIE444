@@ -79,3 +79,8 @@ void ReadEncoder(double& x, double& y, double& angle)
   angle = enc.vals[2];
 
 }
+
+float ReadBat(){
+  return(map(analogRead(0), 0, 1024, 0, 15));
+}
+

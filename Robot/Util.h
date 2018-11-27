@@ -14,3 +14,5 @@ Orientation getOrientation(Point L);
 bool fuzzyComp(float a, float b);
 
 void ReadEncoder(double& x, double& y, double& angle);
+
+float ReadBat();
