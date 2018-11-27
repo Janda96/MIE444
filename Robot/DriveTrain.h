@@ -20,19 +20,13 @@ public:
   
   void Drive(int vel, Direction d);
 
-  void Drive2(int vel, Direction d);
-
   void DriveIntoWall(int vel, bool turnLeft);
 
   void Turn(float angle);
 
   void Stop();
 
-  void set(int vel, bool isLeft);
-
   DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase);
-
-  void MakeWallParallel(UltraSonic* follower, float searchWindowAngle);
 
   Orientation getLook();
 
@@ -41,10 +35,6 @@ public:
 private:
 
   bool isObsticalDetected();
-
-  void AvoidWall();
-
-  void AvoidWall(UltraSonic& DistSensor, bool isLeft);
   
   // Control loop to make sure driving straight
   void UpdateSpeed(float wallDist, bool isLeft);
@@ -57,9 +47,6 @@ private: /* DATA */
   Motor L;            // Left motor
   Motor R;            // Right motor
   UltraSonicArray US; // Ultrasonic array on robot    
-
-  // DriveTrain Parameters
-  float wheelbase;    // Distance between wheels
 
   // Control parameters
   float targetDist = 65.f;  // Target distance to follow wall
