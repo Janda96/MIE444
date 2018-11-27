@@ -17,6 +17,7 @@ void setup()
 {
   lcd.begin(20, 4);
   Serial3.begin(9600);
+  Serial1.begin(9600);
   Serial.begin(9600);
   MyServo.attach(SERVO_PWM);  
 }
@@ -50,7 +51,14 @@ void loop()
   // while (true);
 
   // Verify orientaton tracking
-  chasis.Turn(-90.f);
-  Serial.println(chasis.getLook());
-  delay(2000);
+  //chasis.Turn(-90.f);
+  //Serial.println(chasis.getLook());
+  //delay(2000);
+
+  delay(1000);
+  lcd.setCursor(0,0);
+  lcd.print("BatVolts: ");
+  lcd.print(ReadBat());
+
+   
 }
