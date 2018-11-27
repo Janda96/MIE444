@@ -44,6 +44,9 @@ void loop()
   delay(1000);
   chasis.Stop();
 
+  // Pickup block
+  BlockPickup();
+
   // Turn towards correct wall
   // to get to desired drop off zone
   Serial3.println("TURNING TOWARDS WALL");
@@ -59,6 +62,14 @@ void loop()
   Serial3.println("GOING TO DROP OFF ZONE");
   LzToDz[DZInd]();
 
+  // Drop Block off
+  BlockPickup();
+
+  // Reverse off block
+  chasis.Drive(100.f, Backward);
+  delay(1000);
+  chasis.Stop();
+  
   // STOP
   while(true);
 }
