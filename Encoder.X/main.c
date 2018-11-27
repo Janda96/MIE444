@@ -33,20 +33,15 @@
 #define GIE INTCONbits.GIE
 #define PEIE INTCONbits.PEIE
 
-#define D_STEP 0.02992431454
+#define D_STEP 0.05984862909
 
 #define WB 18.2
 
 #define TX_BUF_SIZE 32
 
-//#define x pos.f[0]
-//#define y pos.f[1]
-//#define ang pos.f[2]
-//#define posChars pos.c
-
-double x = 0;
-double y = 0;
-double ang = 0;
+#define x pos.f[0]
+#define y pos.f[1]
+#define ang pos.f[2]
 
 char rx_byte = 0x0;
 long El = 0;
@@ -56,10 +51,12 @@ long prevEl = 0;
 long prevEr = 0;
 
 // Union to convert position data from 3 doubles to chars
-//union Pose{
-//   double f[3];
-//   char c[9];
-//}pos;  
+union Pose{
+   double f[3];
+   char c[12];
+}pos;  
+
+char txBuf[32];
 
 double dDl = 0;
 double dDr = 0;
@@ -69,6 +66,18 @@ double dw = 0;
 
 int tx_ind = 0;
 int tx_size = 0;
+
+void blinky(){
+    for (int i=0; i<10; ++i){
+        LED1 = 1;
+        LED2 = 1;
+        __delay_ms(500);
+        
+        LED1 = 0;
+        LED2 = 0;
+        __delay_ms(500);
+    }
+}
 
 void init()
 {
@@ -88,8 +97,6 @@ void init()
     WPUA = 0x00;
     WPUC = 0x00;
     
-    ADCON0 = 0b11110000;
-    
     //Set interrupt masks
     PIR0 = 0x00;
     PIR3 = 0x00;
@@ -98,6 +105,21 @@ void init()
     
     IOCAP = 0b00110000;
     IOCCP = 0b00001100;
+    
+    // Use TMR in 8 bit mode, 
+    T0CON0bits.T016BIT = 0;
+    // Use high frequency sys clock 32MHZ
+    T0CON1bits.T0CS = 0b011;
+    // Prescaler set to 1101: divide by 8192
+    T0CON1bits.T0CKPS = 0b1101;
+    
+    // TMR compare value 0b00100000
+    TMR0H = 0x20;
+    // TMR0 post scale, 1:2
+    T0CON0bits.T0OUTPS = 0b0001;
+    // Gives around 60 hz interrupt from TMR0 with these settings
+    T0CON0bits.T0EN = 1;
+    
     
     PEIE = 1;
     //
@@ -109,18 +131,30 @@ void main()
     init();
     UARTInit(9600);
     
-    
     GIE=1;
     while(1){
-        LED1 = (El&0x0040)<<10;
-        LED2 = (Er&0x0040)<<10;
+        LED1 = El & 1<<3;
+        LED2 = Er & 1<<3;
+        
+        if (RC1STAbits.FERR || RC1STAbits.OERR){
+            // If there is a recieve error, reset the reciever
+            RC1STAbits.CREN  = 0;
+            RC1STAbits.CREN  = 1;
+        }
         
         GIE=0;
-        if (abs(El-prevEl)>20 || abs(Er-prevEr)>20){
-            // If encoder position changed, calculated incremental distance
+        // Do update calculation on a fixed time rate, give or take
+        // IF TMR0 triggered, do pose update
+        if (PIR0bits.TMR0IF){
+            // Reset flag
+            PIR0bits.TMR0IF = 0;
+                    
             dDr = (double) (Er - prevEr);
-            dDr = dDr*D_STEP;
             dDl = (double) (El - prevEl);
+            // If encoder positions didnt change, skip loop
+            if (dDr != 0 || dDl != 0){
+            
+            dDr = dDr*D_STEP;
             dDl = dDl*D_STEP;
             
             R = (dDr+dDl)/2;
@@ -131,6 +165,7 @@ void main()
             ang = ang + dw;
             prevEl = El;
             prevEr = Er;
+            }
             
         }
         GIE=1;
@@ -140,59 +175,46 @@ void main()
     
 }
 
-void blinky(){
-    for (int i=0; i<10; ++i){
-        LED1 = 1;
-        LED2 = 1;
-        __delay_ms(500);
-        
-        LED1 = 0;
-        LED2 = 0;
-        __delay_ms(500);
-    }
-}
-
 void __interrupt() isr(void){
     if (PIR0bits.IOCIF){
         // One of the encoder pin tripped
         if (IntM1EA){
-            IntM1EA=0;
             if(M1EB){
-                El++;
-            }else{
                 El--;
+            }else{
+                El++;
             }
+            IntM1EA=0;
         }
         if (IntM1EB){
-            IntM1EB=0;
             if(M1EA){
-                El--;
-            }else{
                 El++;
+            }else{
+                El--;
             }
+            IntM1EB=0;
         }
         if (IntM2EA){
-            IntM2EA=0;
-            IntM2EA=0;
             if(M2EB){
-                Er--;
-            }else{
                 Er++;
+            }else{
+                Er--;
             }
-            
+            IntM2EA=0;
         }
         if (IntM2EB){
-            IntM2EB=0;
             if(M2EA){
-                Er++;
-            }else{
                 Er--;
+            }else{
+                Er++;
             }
+            IntM2EB=0;
         }
-        
+        return;
     }
-    else if(PIR3bits.TX1IF){
+    else if(PIR3bits.TX1IF && PIE3bits.TX1IE){
         // Serial Send interrupt
+        __delay_ms(2);
         if (UARTSendNext()){
             PIE3bits.TX1IE = 0;
         }
@@ -201,17 +223,15 @@ void __interrupt() isr(void){
         // Serial receive interrupt
         // Load the input buffer to be looked at
         rx_byte = RC1REG;
-        
-        
-        
-        
         if (rx_byte == 'a'){
             // If received command 'a', transmit location estimate
             int length = 0;
             // Each double is 24 bit, 3 byte
-            
-            tx_size = 9;
+            tx_size = 12;
             tx_ind = 0;
+            for(int i=0; i<12; ++i){
+                txBuf[i] = pos.c[i];
+            }
             
             PIE3bits.TX1IE = 1;
             UARTSendNext();

@@ -22,6 +22,7 @@ extern voidFuncType LzToDz[4];
 
 // Localization data
 void Localize();
+void SendLocMeasurements();
 
 // Utility functions
 bool inLoadingZone();

@@ -374,11 +374,36 @@ void TakeLocMeasurement(int ind)
 
 void SendLocMeasurements()
 {
-  for (auto i = 0; i < NUM_MEASUREMENTS; ++i)
+  char USReading = getMappedUSReadings();
+  char look;
+  Orientation O = chasis.getLook();
+  Serial.print(O);
+  if (O == Up)
   {
-    Serial3.println(USReadingArr[i]);
-    Serial3.println(orientationArr[i]);
+    look = 'U';
   }
+  if (O == Down)
+  {
+    look = 'D';
+  }
+  if (O == Left)
+  {
+    look = 'L';
+  }
+  if (O == Right)
+  {
+    look = 'R';
+  }
+
+  Serial3.println(USReading);
+  Serial3.println(look);
+
+  // for (auto i = 0; i < NUM_MEASUREMENTS; ++i)
+  // {
+  //   Serial3.println(USReadingArr[i]);
+  //   Serial3.println(orientationArr[i]);
+  // }
+
 }
 
 void Localize()
@@ -394,18 +419,18 @@ void Localize()
 }
 
 void BlockPickup(){
-  int pos = 180;
-  // Turn servo down (180) degree to touch the block
-  for (pos = 180; pos >= 0; pos -= 1) {
+  int pos = 40;
+  // Turn servo down to (10) degree to touch the block
+  for (pos = 40; pos >= 10; pos -= 1) {
     MyServo.write(pos);
     delay(20);
   }
   // Wait for 1s before raising arm
   delay (1000);
-  // Raise arm by turning servo up (40) degree to lift block
-  for (pos = 0; pos <= 40; pos += 1) {
+  // Raise arm by turning servo up to (130) degree to lift block
+  for (pos = 10; pos <=  130; pos += 1) {
     MyServo.write(pos);
-    delay(40);
+    delay(30);
   }
 }
 
@@ -413,7 +438,7 @@ void BlockDropoff(){
     int pos = MyServo.read();
     for (pos; pos <= 180; pos += 1) {
       MyServo.write(pos);
-      delay(40);
+      delay(30);
     }
 }
 
