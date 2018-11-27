@@ -34,7 +34,7 @@ UltraSonicArray US = {US_Front, US_Back, US_Right, US_Left};
 IRArray IRA = {IR_FR, IR_FL, IR_BR, IR_BL};
 
 // Drivetrain
-DriveTrain chasis(leftMotor, rightMotor, US, 10);
+DriveTrain chasis(leftMotor, rightMotor, US);
 
 //Servo
 Servo MyServo;

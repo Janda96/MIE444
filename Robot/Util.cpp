@@ -11,9 +11,80 @@
 // LCD
 LiquidCrystal lcd(LCD_RS, LCD_E, LCD_D4, LCD_D5, LCD_D6, LCD_D7);
 
-bool fuzzyComp(float a, float b)
+// Localization Code
+#define WALL_DIST 100.f
+
+void SendLocMeasurement(char USReading, char look)
 {
-  return abs(a - b) < 0.1f;
+  Serial3.println(USReading);
+  Serial3.println(look);
+}
+
+char getMappedOrientation(Orientation Look)
+{
+  switch (Look)
+  {
+    case Up:
+      return 'U';
+    case Down:
+      return 'D';
+    case Left:
+      return 'L';
+    case Right:
+      return 'R';
+    default:
+      return 'L';
+  }
+}
+
+char getMappedUSReadings(UltraSonicArray& US)
+{
+  bool isFrontWall = US.F.getDist() < WALL_DIST;
+  bool isBackWall = US.B.getDist() < WALL_DIST;
+  bool isRightWall = US.R.getDist() < WALL_DIST;
+  bool isLeftWall = US.L.getDist() < WALL_DIST;
+
+  int walls[4] = {isFrontWall, isBackWall, isRightWall, isLeftWall};
+  
+  int sumArr = sumIntArr(walls, 4);
+  bool areOpposite = areWallsOpposite(walls);
+
+  switch (sumArr)
+  {
+    case 0:
+      return '0';
+    case 1:
+      return '1';
+    case 3:
+      return '3';
+    case 2:
+      if (areOpposite)
+      {
+        return '5';
+      }
+      else
+      {
+        return '2';
+      }
+    default:
+      return '4';
+  }
+}
+
+bool areWallsOpposite(int arr[4])
+{
+  if (arr[0] == 1 && arr[1] == 1)
+  {
+    return true;
+  }
+  else if (arr[2] == 1 && arr[3] == 1)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 Orientation getOrientation(Point L)
@@ -80,7 +151,22 @@ void ReadEncoder(double& x, double& y, double& angle)
 
 }
 
+int sumIntArr(int* arr, int sizeOfArr)
+{
+  int sum = 0;
+  for (auto i = 0; i < sizeOfArr; ++i)
+  {
+    sum += arr[i];
+  }
+  return sum;
+}
+
 float ReadBat()
 {
   return(map(analogRead(0), 0, 1024, 0, 15));
+}
+
+bool fuzzyComp(float a, float b)
+{
+  return abs(a - b) < 0.1f;
 }

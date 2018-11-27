@@ -5,8 +5,7 @@
 
 // Custom Includes
 #include "Arduino.h"
-#include "Modules.h"
-#include "Algos.h"
+#include "Util.h"
 
 // Preprocessor definitions
 #define DEG2RAD 3.14f / 180.f
@@ -15,14 +14,13 @@
 // Motor Related
 #define MAX_SPEED 150
 #define MOTOR_CALIB 0.95f
-#define DEFAULT_SPEED_R 100
+#define DEFAULT_SPEED 100
+#define DEFAULT_SPEED_R DEFAULT_SPEED
 #define DEFAULT_SPEED_L MOTOR_CALIB * DEFAULT_SPEED_R
 
 // Wall Avoidance Related
 #define OBSTACLE_DIST 90.f
-#define AVOID_DIST 100.f
-#define WALL_AVOID_DIST 20.f
-#define WALL_DETECT_DIST 150.f
+#define WALL_LOST_DIST 150.f
 
 ErrorCode DriveTrain::FollowWall(UltraSonic& follower, bool isLeft)
 {
@@ -42,16 +40,16 @@ ErrorCode DriveTrain::FollowWall(UltraSonic& follower, bool isLeft)
         Serial1.print('b');
 
         // Send localization data
-        SendLocMeasurements();
+        TakeAndSendLocMeasurement();
       }
 
       // Control
       wallDist = follower.getDist();
       UpdateSpeed(wallDist, isLeft);
 
-      if (wallDist > WALL_DETECT_DIST)
+      if (wallDist > WALL_LOST_DIST)
       {
-        chasis.Stop();
+        Stop();
         return WallDisapeared;
       }
     }
@@ -68,7 +66,7 @@ ErrorCode DriveTrain::LookFor(UltraSonic& follower)
 
     // Drive until a wall is found
     float dist = follower.getDist();
-    while (dist > WALL_DETECT_DIST)
+    while (dist > WALL_LOST_DIST)
     {
       // Read the encoder and get the distance since last reset
       ReadEncoder(x, y, angle);
@@ -81,7 +79,7 @@ ErrorCode DriveTrain::LookFor(UltraSonic& follower)
         Serial1.print('b');
 
         // Send localization data
-        SendLocMeasurements();
+        TakeAndSendLocMeasurement();
       }
 
       // Drive forward
@@ -103,6 +101,36 @@ ErrorCode DriveTrain::LookFor(UltraSonic& follower)
     }
 
     Stop();
+    return OK;
+}
+
+ErrorCode DriveTrain::LostWall(bool isLeft)
+{
+    // Stop for a second
+    Stop();
+    delay(1000);
+    Serial3.println("Lost Wall");
+
+    // Drive forward to clear the wall
+    Drive(DEFAULT_SPEED_R, Forward);
+    delay(500);
+    Stop();
+
+    // Turn to the open direction
+    isLeft ? Turn(90) : Turn(-90);
+
+    // Drive forward to find a new wall
+    // So long as no obstacle is found
+    Drive(DEFAULT_SPEED_R, Forward);
+    for (auto i = 0; i < 40; ++i)
+    {
+      if (isObsticalDetected())
+      {
+        break;
+      }
+      delay(10);
+    }
+
     return OK;
 }
 
@@ -180,6 +208,30 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
   R.drive(-rSpeed);
 }
 
+void DriveTrain::DriveIntoWall(int vel, bool turnLeft)
+{
+  Serial3.println("Driving into wall");
+
+  // Drive forward until wall is hit
+  Drive(vel, Forward);
+  while(!isObsticalDetected());
+
+  // Stop and turn left or right accordinly
+  Stop();
+  turnLeft ? Turn(-90.f) : Turn(90.f);
+}
+
+void DriveTrain::Drive(int vel, Direction d)
+{
+  if (isObsticalDetected())
+  {
+    ClearObstacle();
+  }
+
+  R.drive(d * vel);
+  L.drive(d * MOTOR_CALIB * vel);
+}
+
 void DriveTrain::Turn(float angle)
 {
   Serial3.println("Turning");
@@ -197,76 +249,16 @@ void DriveTrain::Turn(float angle)
 
   float DelayGain = angle > 0 ? 380.f : 380.f;
 
-  float turnDist = wheelbase / 2.f * abs(angle);
-  float currDist = 0.f;
-
   // Turn loop
   L.drive(lSpeed);  // NOTE: Might need to adjust speeds for specific sides
   R.drive(rSpeed);
-  while( currDist < turnDist)
-  {
-    // Timebased turn
-    unsigned timeDelay = static_cast<unsigned>(abs(angle) * DelayGain);
-    delay(timeDelay);
-    break;
-  }
+
+  // Timebased turn
+  unsigned timeDelay = static_cast<unsigned>(abs(angle) * DelayGain);
+  delay(timeDelay);
 
   L.brake();
   R.brake();
-}
-
-ErrorCode DriveTrain::LostWall(bool isLeft)
-{
-    // Stop for a second
-    Stop();
-    delay(1000);
-    Serial3.println("Lost Wall");
-
-    // Drive forward to clear the wall
-    Drive(DEFAULT_SPEED_R, Forward);
-    delay(500);
-    Stop();
-
-    // Turn to the open direction
-    isLeft ? Turn(90) : Turn(-90);
-
-    // Drive forward to find a new wall
-    // So long as no obstacle is found
-    Drive(DEFAULT_SPEED_R, Forward);
-    for (auto i = 0; i < 40; ++i)
-    {
-      if (isObsticalDetected())
-      {
-        break;
-      }
-      delay(10);
-    }
-
-    return OK;
-}
-
-void DriveTrain::Drive(int vel, Direction d)
-{
-  if (isObsticalDetected())
-  {
-    ClearObstacle();
-  }
-
-  R.drive(d * vel);
-  L.drive(d * MOTOR_CALIB * vel);
-}
-
-void DriveTrain::DriveIntoWall(int vel, bool turnLeft)
-{
-  Serial3.println("Driving into wall");
-
-  // Drive forward until wall is hit
-  Drive(vel, Forward);
-  while(US.F.getDist() > 75.f);
-
-  // Stop and turn left or right accordinly
-  Stop();
-  turnLeft ? Turn(-90.f) : Turn(90.f);
 }
 
 void DriveTrain::updateOrientation(float angle)
@@ -291,6 +283,14 @@ void DriveTrain::updateOrientation(float angle)
   Look.y = fuzzyComp(Look.y, -1.f) ? -1.f : Look.y;
 }
 
+void DriveTrain::TakeAndSendLocMeasurement()
+{
+  char cLook = getMappedOrientation(getLook());
+  char cUSReading = getMappedUSReadings(US);
+
+  SendLocMeasurement(cUSReading, cLook);
+}
+
 Orientation DriveTrain::getLook()
 {
   return getOrientation(Look);
@@ -307,7 +307,7 @@ void DriveTrain::Stop()
   Serial3.println("Stopped!");
 }
 
-DriveTrain::DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase) :
+DriveTrain::DriveTrain(Motor L, Motor R, UltraSonicArray US) :
 L(L),
 R(R),
 US(US)

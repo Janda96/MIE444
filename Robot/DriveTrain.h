@@ -12,40 +12,45 @@ class DriveTrain
 {
 public:
 
+  // Core high level maze navigation functions
   ErrorCode FollowWall(UltraSonic& follower, bool isLeft);
 
   ErrorCode LookFor(UltraSonic& follower);
 
   ErrorCode LostWall(bool isLeft);
-  
-  void Drive(int vel, Direction d);
+
+  ErrorCode ClearObstacle();
 
   void DriveIntoWall(int vel, bool turnLeft);
+
+  // Low level navigation functions
+  void Drive(int vel, Direction d);
 
   void Turn(float angle);
 
   void Stop();
 
-  DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase);
-
+  // Accessor Functions
   Orientation getLook();
 
-  ErrorCode ClearObstacle();
+  // Constructor
+  DriveTrain(Motor L, Motor R, UltraSonicArray US);
 
 private:
 
-  bool isObsticalDetected();
-  
   // Control loop to make sure driving straight
   void UpdateSpeed(float wallDist, bool isLeft);
 
+  void TakeAndSendLocMeasurement();
+
   void updateOrientation(float angle);
+
+  bool isObsticalDetected();
 
 private: /* DATA */
   
   // DriveTrain Modules
-  Motor L;            // Left motor
-  Motor R;            // Right motor
+  Motor L, R;            // Left and Right motors
   UltraSonicArray US; // Ultrasonic array on robot    
 
   // Control parameters
@@ -60,5 +65,6 @@ private: /* DATA */
   // Orientation
   Point Look;
 
+  // Error code
   ErrorCode m_err = OK;
 };
