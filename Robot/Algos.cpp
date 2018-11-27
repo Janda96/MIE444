@@ -397,13 +397,6 @@ void SendLocMeasurements()
 
   Serial3.println(USReading);
   Serial3.println(look);
-
-  // for (auto i = 0; i < NUM_MEASUREMENTS; ++i)
-  // {
-  //   Serial3.println(USReadingArr[i]);
-  //   Serial3.println(orientationArr[i]);
-  // }
-
 }
 
 void Localize()
@@ -418,25 +411,31 @@ void Localize()
   SendLocMeasurements();
 }
 
-void BlockPickup(){
-  int pos = 40;
+void BlockPickup()
+{  
   // Turn servo down to (10) degree to touch the block
-  for (pos = 40; pos >= 10; pos -= 1) {
+  for (int pos = 40; pos >= 10; --pos) 
+  {
     MyServo.write(pos);
     delay(20);
   }
+  
   // Wait for 1s before raising arm
   delay (1000);
+  
   // Raise arm by turning servo up to (130) degree to lift block
-  for (pos = 10; pos <=  130; pos += 1) {
+  for (int pos = 10; pos <=  130; ++pos) 
+  {
     MyServo.write(pos);
     delay(30);
   }
 }
 
-void BlockDropoff(){
+void BlockDropoff()
+{
     int pos = MyServo.read();
-    for (pos; pos <= 180; pos += 1) {
+    for (pos; pos <= 180; ++pos) 
+    {
       MyServo.write(pos);
       delay(30);
     }
@@ -446,16 +445,21 @@ void RemoteControl()
 {
   int drive;
   int turn;
-  while (true){
-    if(Serial3.available()>0){
-      if(Serial3.read() == 'd'){
+  while (true)
+  {
+    if(Serial3.available() > 0)
+    {
+      if(Serial3.read() == 'd')
+      {
         drive = Serial3.parseInt();
         turn = Serial3.parseInt();
         chasis.Drive(drive, Forward);
-        if(turn == 1){
+        
+        if(turn == 1)
+        {
           chasis.Turn(10);
           Serial3.flush();
-          }
+        }
       }
     }
   }
