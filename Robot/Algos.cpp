@@ -8,6 +8,8 @@
 #include "Types.h"
 #include "Util.h"
 
+#define WALL_DETECT_DIST 150.f
+
 ErrorCode err = OK;
 
 voidFuncType LzToDz[4] = {&LzToDz1, &LzToDz2, &LzToDz3, &LzToDz4};
@@ -204,9 +206,9 @@ bool inLoadingZone()
   // Case 1
   if (chasis.getLook() == Up)
   {
-    if (US.F.getDist() < 150.f && US.L.getDist() < 150.f)
+    if (US.F.getDist() < WALL_DETECT_DIST && US.L.getDist() < WALL_DETECT_DIST)
     {
-      if (US.R.getDist() > 150.f && US.B.getDist() > 150.f)
+      if (US.R.getDist() > WALL_DETECT_DIST && US.B.getDist() > WALL_DETECT_DIST)
       {
         return true;
       }
@@ -220,9 +222,9 @@ bool inLoadingZone()
   // Case 2
   else if (chasis.getLook() == Left)
   {
-    if (US.F.getDist() < 150.f && US.R.getDist() < 150.f)
+    if (US.F.getDist() < WALL_DETECT_DIST && US.R.getDist() < WALL_DETECT_DIST)
     {
-      if (US.L.getDist() > 150.f && US.B.getDist() > 150.f)
+      if (US.L.getDist() > WALL_DETECT_DIST&& US.B.getDist() > WALL_DETECT_DIST)
       {
         return true;
       }
@@ -266,14 +268,9 @@ void TurnTowardsBlock(float searchWindowAngle)
     }
     chasis.Turn(angleIncrement);
     delay(500);
-    Serial3.println(angle);
-    Serial3.println(dist);
   }
 
-
   chasis.Turn(minAngle - searchWindowAngle + 50);
-  Serial3.println();
-  Serial3.println(minAngle);
 }
 
 void BlockPickup()

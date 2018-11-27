@@ -58,14 +58,7 @@ char getMappedUSReadings(UltraSonicArray& US)
     case 3:
       return '3';
     case 2:
-      if (areOpposite)
-      {
-        return '5';
-      }
-      else
-      {
-        return '2';
-      }
+      return areOpposite ? '5' : '2';
     default:
       return '4';
   }

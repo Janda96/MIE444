@@ -30,7 +30,7 @@ void loop()
 {
   lcd.print(ReadBat());
   
-  // Goal today: Get to Lz, pickup block and go to DZ
+  // Get to Lz, pickup block and go to DZ
   GetToLZ();
 
   // Roughly turn towards block
