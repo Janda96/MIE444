@@ -15,21 +15,19 @@ static float IRDTunning = 250.f / (vAt5cm - vAt30cm);
 
 float UltraSonic::getDist()
 {
-  trig.set(LOW);
-  delayMicroseconds(5);
-  trig.set(HIGH);
-  delayMicroseconds(10);
-  trig.set(LOW);
-
-  auto timeMicro = echo.timePulse(HIGH);
-
-  float mm = (static_cast<float>(timeMicro)/2.f) / 2.91f;
-  return mm;
+  auto echoTime = sonar.ping_median(3);
+  if (echoTime == 0)
+  {
+    return 900.f;
+  }
+  else
+  {
+      return (static_cast<float>(echoTime)/2.f) / 2.91f;
+  }
 }
 
 UltraSonic::UltraSonic(unsigned trigPin, unsigned echoPin) :
-echo(echoPin, false),
-trig(trigPin, false)
+sonar(trigPin, echoPin, 15.f)
 {
 }
 

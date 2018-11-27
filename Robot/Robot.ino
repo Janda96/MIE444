@@ -13,52 +13,50 @@
 // Error code
 ErrorCode errMain = OK;
 
-void setup() 
+void setup()
 {
   lcd.begin(20, 4);
-  Serial3.begin(9600);
-  Serial1.begin(9600);
+
   Serial.begin(9600);
-  MyServo.attach(SERVO_PWM);  
+  Serial1.begin(9600);
+  Serial3.begin(9600);
+
+  Serial3.println("I'M ALIVE!!!");
 }
 
-void loop() 
-{ 
-  // For drop off zone 1,2,3
-  // Place robot pointing right along top wall in loading zone
-  // For drop off zone 4
-  // Place robot pointing down along left wall in loading zone
-  //chasis.Turn(180.f);
-  //delay(2000);
-  // Get from loading zone to drop off zone
-  //delay(1000);
-  // LzToDz2();
-  // LzToDz2();
-  // LzToDz3();
-  // LzToDz4();
+int DZInd = 0;
 
-  // Serial.println(US.F.getDist());
-  // Serial.println(IRD.getDist());
-  // delay(1000);
+void loop()
+{
+  // Goal today: Get to Lz, pickup block and go to DZ
+  GetToLZ();
 
-  //chasis.Turn(180.f);
-  //delay(1000);
+  // Roughly turn towards block
+  Serial3.println("TURNING TOWARDS BLOCK");
+  auto look = chasis.getLook();
+  look == Up ? chasis.Turn(-135.f) : chasis.Turn(135.f);
 
-  //TurnTowardsBlock(60.f);
-  //chasis.Drive(100, Forward);
-  //delay(500);
-  // chasis.Stop();
-  // while (true);
-
-  // Verify orientaton tracking
-  //chasis.Turn(-90.f);
-  //Serial.println(chasis.getLook());
-  //delay(2000);
-
+  // Drive towards block
+  Serial3.println("DRIVING TOWARDS BLOCK");
+  chasis.Drive(100.f, Forward);
   delay(1000);
-  lcd.setCursor(0,0);
-  lcd.print("BatVolts: ");
-  lcd.print(ReadBat());
+  chasis.Stop();
 
-   
+  // Turn towards correct wall
+  // to get to desired drop off zone
+  Serial3.println("TURNING TOWARDS WALL");
+  bool turnLeft = DZInd < 3;
+  turnLeft ? chasis.Turn(135.f) : chasis.Turn(-135.f);
+
+  // Drive into the wall and turn
+  // Towards the drop off zone
+  Serial3.println("DRIVING INTO WALL");
+  chasis.DriveIntoWall(100.f, turnLeft);
+
+  // Get to the drop off zone
+  Serial3.println("GOING TO DROP OFF ZONE");
+  LzToDz[DZInd]();
+
+  // STOP
+  while(true);
 }

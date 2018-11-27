@@ -10,9 +10,12 @@
 
 ErrorCode err = OK;
 
+voidFuncType LzToDz[4] = {&LzToDz1, &LzToDz2, &LzToDz3, &LzToDz4};
+
 // Get to loading zone from random starting location
 void GetToLZ()
 {
+  Serial3.println("Going to loading zone");
   while (!inLoadingZone())
   {
       // Find orientation
@@ -100,6 +103,8 @@ void GetToLZ()
 // drop off zone
 void LzToDz1()
 {
+  Serial3.println("Going to drop off zone 1");
+  
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Turn(-90);                   // Turn right 90 degrees
   chasis.FollowWall(US.L, true);      // Follow Left wall
@@ -117,6 +122,8 @@ void LzToDz1()
 // drop off zone
 void LzToDz2()
 {
+  Serial3.println("Going to drop off zone 2");
+    
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Turn(-90);                   // Turn right 90 degrees
 
@@ -146,6 +153,8 @@ void LzToDz2()
 // drop off zone
 void LzToDz3()
 {
+  Serial3.println("Going to drop off zone 3");
+    
   chasis.FollowWall(US.L, true);      // Follow left wall
   chasis.Turn(-90);                   // Turn right 90 degrees
 
@@ -179,6 +188,8 @@ void LzToDz3()
 // drop off zone
 void LzToDz4()
 {
+  Serial3.println("Going to drop off zone 4");
+    
   chasis.FollowWall(US.R, false);     // Follow left wall
   chasis.Turn(90);                    // Turn left 90 degrees
   chasis.LookFor(US.L);               // Look for left wall
@@ -255,14 +266,14 @@ void TurnTowardsBlock(float searchWindowAngle)
     }
     chasis.Turn(angleIncrement);
     delay(500);
-    Serial.println(angle);
-    Serial.println(dist);
+    Serial3.println(angle);
+    Serial3.println(dist);
   }
 
 
   chasis.Turn(minAngle - searchWindowAngle + 50);
-  Serial.println();
-  Serial.println(minAngle);
+  Serial3.println();
+  Serial3.println(minAngle);
 }
 
 // Localization Code
@@ -341,7 +352,7 @@ void TakeLocMeasurement(int ind)
 
   char look;
   Orientation O = chasis.getLook();
-  Serial.print(O);
+  Serial3.print(O);
   if (O == Up)
   {
     look = 'U';
@@ -363,11 +374,29 @@ void TakeLocMeasurement(int ind)
 
 void SendLocMeasurements()
 {
-  for (auto i = 0; i < NUM_MEASUREMENTS; ++i)
+  char USReading = getMappedUSReadings();
+  char look;
+  Orientation O = chasis.getLook();
+  Serial.print(O);
+  if (O == Up)
   {
-    Serial3.println(USReadingArr[i]);
-    Serial3.println(orientationArr[i]);
+    look = 'U';
   }
+  if (O == Down)
+  {
+    look = 'D';
+  }
+  if (O == Left)
+  {
+    look = 'L';
+  }
+  if (O == Right)
+  {
+    look = 'R';
+  }
+
+  Serial3.println(USReading);
+  Serial3.println(look);
 }
 
 void Localize()
@@ -382,27 +411,33 @@ void Localize()
   SendLocMeasurements();
 }
 
-void BlockPickup(){
-  int pos = 180;
-  // Turn servo down (180) degree to touch the block
-  for (pos = 180; pos >= 0; pos -= 1) {
+void BlockPickup()
+{  
+  // Turn servo down to (10) degree to touch the block
+  for (int pos = 40; pos >= 10; --pos) 
+  {
     MyServo.write(pos);
     delay(20);
   }
+  
   // Wait for 1s before raising arm
   delay (1000);
-  // Raise arm by turning servo up (40) degree to lift block
-  for (pos = 0; pos <= 40; pos += 1) {
+  
+  // Raise arm by turning servo up to (130) degree to lift block
+  for (int pos = 10; pos <=  130; ++pos) 
+  {
     MyServo.write(pos);
-    delay(40);
+    delay(30);
   }
 }
 
-void BlockDropoff(){
+void BlockDropoff()
+{
     int pos = MyServo.read();
-    for (pos; pos <= 180; pos += 1) {
+    for (pos; pos <= 180; ++pos) 
+    {
       MyServo.write(pos);
-      delay(40);
+      delay(30);
     }
 }
 
@@ -410,16 +445,21 @@ void RemoteControl()
 {
   int drive;
   int turn;
-  while (true){
-    if(Serial3.available()>0){
-      if(Serial3.read() == 'd'){
+  while (true)
+  {
+    if(Serial3.available() > 0)
+    {
+      if(Serial3.read() == 'd')
+      {
         drive = Serial3.parseInt();
         turn = Serial3.parseInt();
         chasis.Drive(drive, Forward);
-        if(turn == 1){
+        
+        if(turn == 1)
+        {
           chasis.Turn(10);
           Serial3.flush();
-          }
+        }
       }
     }
   }

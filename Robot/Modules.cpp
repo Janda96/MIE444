@@ -36,8 +36,5 @@ IRArray IRA = {IR_FR, IR_FL, IR_BR, IR_BL};
 // Drivetrain
 DriveTrain chasis(leftMotor, rightMotor, US, 10);
 
-// Localization
-//Loc Locator(IRA);
-
 //Servo
 Servo MyServo;
