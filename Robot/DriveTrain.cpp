@@ -83,7 +83,7 @@ ErrorCode DriveTrain::LookFor(UltraSonic& follower)
       }
 
       // Drive forward
-      Drive(DEFAULT_SPEED_R, Forward);
+      Drive(DEFAULT_SPEED, Forward);
 
       // Make sure robot doesnt hit anything
       if (isObsticalDetected())
@@ -112,7 +112,7 @@ ErrorCode DriveTrain::LostWall(bool isLeft)
     Serial3.println("Lost Wall");
 
     // Drive forward to clear the wall
-    Drive(DEFAULT_SPEED_R, Forward);
+    Drive(DEFAULT_SPEED, Forward);
     delay(500);
     Stop();
 
@@ -121,7 +121,7 @@ ErrorCode DriveTrain::LostWall(bool isLeft)
 
     // Drive forward to find a new wall
     // So long as no obstacle is found
-    Drive(DEFAULT_SPEED_R, Forward);
+    Drive(DEFAULT_SPEED, Forward);
     for (auto i = 0; i < 40; ++i)
     {
       if (isObsticalDetected())
