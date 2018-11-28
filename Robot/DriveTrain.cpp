@@ -24,23 +24,9 @@ ErrorCode DriveTrain::FollowWall(bool isLeft)
 
     UltraSonic& follower = isLeft ? US.L : US.R;
 
-    double x, y, angle, distSinceLoc;
     float wallDist = 0.f;
     while (!isObsticalDetected())
     {
-      ReadEncoder(x, y, angle);
-      distSinceLoc = sqrt(sq(x) + sq(y));
-
-      // Send localization data to matlab every 3 in
-      if (distSinceLoc >= 7.62f)
-      {
-        // Reset encoder values
-        Serial1.print('b');
-
-        // Send localization data
-        TakeAndSendLocMeasurement();
-      }
-
       // Control
       wallDist = follower.getDist();
       UpdateSpeed(wallDist, isLeft);
@@ -51,6 +37,7 @@ ErrorCode DriveTrain::FollowWall(bool isLeft)
         return WallDisapeared;
       }
     }
+    
     Stop();
     return ObstacleDetected;
 }
@@ -59,28 +46,11 @@ ErrorCode DriveTrain::LookFor(bool isLeft)
 {
     Serial3.println("Looking for wall");
     UltraSonic& follower = isLeft ? US.L : US.R;
-    
-    // Initialize encoder outputs
-    double x, y, angle, distSinceLoc;
 
     // Drive until a wall is found
     float dist = follower.getDist();
     while (dist > WALL_LOST_DIST)
     {
-      // Read the encoder and get the distance since last reset
-      ReadEncoder(x, y, angle);
-      double distSinceLoc = sqrt(sq(x) + sq(y));
-
-      // Send localization data to matlab every 3 in
-      if (distSinceLoc >= 7.62)
-      {
-        // Reset encoder values
-        Serial1.print('b');
-
-        // Send localization data
-        TakeAndSendLocMeasurement();
-      }
-
       // Drive forward
       Drive(DEFAULT_SPEED, Forward);
 
@@ -112,7 +82,7 @@ ErrorCode DriveTrain::LostWall(bool isLeft)
 
     // Drive forward to clear the wall
     Drive(DEFAULT_SPEED, Forward);
-    delay(400);
+    delay(600);
     Stop();
 
     // Turn to the open direction
@@ -121,7 +91,7 @@ ErrorCode DriveTrain::LostWall(bool isLeft)
     // Drive forward to find a new wall
     // So long as no obstacle is found
     Drive(DEFAULT_SPEED, Forward);
-    for (auto i = 0; i < 40; ++i)
+    for (auto i = 0; i < 20; ++i)
     {
       if (isObsticalDetected())
       {
@@ -179,8 +149,8 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 
   // Find speed update and limit
   float speedUpdate = kp * p + kd * d;
-  //speedUpdate = min(speedUpdate, 12);
-  //speedUpdate = max(speedUpdate, -12);
+  speedUpdate = min(speedUpdate, 12);
+  speedUpdate = max(speedUpdate, -12);
 
   // Update motor speeds based on control input
   float rSpeed, lSpeed;
@@ -222,9 +192,12 @@ void DriveTrain::DriveIntoWall(int vel, bool turnLeft)
 
 void DriveTrain::Drive(int vel, Direction d)
 {
-  if (isObsticalDetected())
+  if (d == Forward)
   {
-    ClearObstacle();
+    if (isObsticalDetected())
+    {
+      ClearObstacle();
+    }
   }
 
   R.drive(d * vel);

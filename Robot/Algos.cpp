@@ -23,15 +23,17 @@ void GetToLZ()
       // GOING LEFT
       if (chasis.getLook() == Left)
       {
+          Serial3.println("GOING LEFT");
           // keep going left until wall hit
           // By following the left wall
-          if (isWallDetected(Dir::Left))
+          if (isWallDetected(Dir::Right))
+          {
+            Serial3.println("Following Right Wall");
+            err = chasis.FollowWall(RIGHT_WALL);
+          }
+          else if (isWallDetected(Dir::Left))
           {
             err = chasis.FollowWall(LEFT_WALL);
-          }
-          else if (isWallDetected(Dir::Right))
-          {
-            err = chasis.FollowWall(RIGHT_WALL);
           }
           else
           {
@@ -85,7 +87,7 @@ void GetToLZ()
       // GOING DOWN
       if (chasis.getLook() == Down)
       {
-         // Follow right wall
+        // Follow right wall
         err = chasis.FollowWall(RIGHT_WALL);    
 
         // If right wall disapeared, turn right
@@ -95,7 +97,7 @@ void GetToLZ()
 
   // Display confirmation that in loading zone
   lcd.clear();
-  lcd.print("IN LOADING ZONE: BLOCK 14");
+  lcd.print("IN LOADING ZONE");
 }
 
 // Travel from Loading zone to top left
@@ -263,7 +265,7 @@ void DriveIntoBlock(float searchWindowAngle)
   }
 
   // Drive into the block
-  for (auto i = 0; i < 7; ++i)
+  for (auto i = 0; i < 10; ++i)
   {
     if (isObsticalDetected())
     {

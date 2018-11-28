@@ -13,9 +13,16 @@
 // Error code
 ErrorCode errMain = OK;
 
+// Drop Off Zone index
+int DZInd = 0;
+
 void setup()
 {
   lcd.begin(20, 4);
+
+  // Setup servo and center
+  MyServo.attach(SERVO_PWM);
+  MyServo.write(0.f);
 
   Serial.begin(9600);
   Serial1.begin(9600);
@@ -24,22 +31,33 @@ void setup()
   Serial3.println("I'M ALIVE!!!");
 }
 
-int DZInd = 0;
-
 void loop()
 {
   lcd.print(ReadBat());
 
+  // Display in loading zone
+  lcd.clear();
+  lcd.print("GOING TO LZ");
+  
   // Get to Lz, pickup block and go to DZ
   GetToLZ();
 
+  // Display in loading zone
+  lcd.clear();
+  lcd.print("IN LOADING ZONE");
+  delay(5000);
+
+  lcd.clear();
+  lcd.print("TURNING TOWARDS BLOCK");
+
   // Roughly turn towards block
-  Serial3.println("TURNING TOWARDS BLOCK");
   auto look = chasis.getLook();
-  look == Up ? chasis.Turn(-135.f) : chasis.Turn(135.f);
+  look == Up ? chasis.Turn(-150.f) : chasis.Turn(135.f);
+
+  lcd.clear();
+  lcd.print("DRIVING TOWARDS BLOCK");
 
   // Drive towards block
-  Serial3.println("DRIVING TOWARDS BLOCK");
   chasis.Drive(100.f, Forward);
   delay(1000);
   chasis.Stop();
@@ -47,28 +65,34 @@ void loop()
   // Pickup block
   BlockPickup();
 
+  lcd.clear();
+  lcd.print("TURNING TOWARDS WALL");
+  
   // Turn towards correct wall
   // to get to desired drop off zone
-  Serial3.println("TURNING TOWARDS WALL");
   bool turnLeft = DZInd < 3;
   turnLeft ? chasis.Turn(135.f) : chasis.Turn(-135.f);
 
+  lcd.clear();
+  lcd.print("DRIVING INTO WALL");
+
   // Drive into the wall and turn
   // Towards the drop off zone
-  Serial3.println("DRIVING INTO WALL");
-  chasis.DriveIntoWall(100.f, turnLeft);
+  chasis.DriveIntoWall(100.f, !turnLeft);
+
+  lcd.clear();
+  lcd.print("GOING TO DROP OFF ZONE");
 
   // Get to the drop off zone
-  Serial3.println("GOING TO DROP OFF ZONE");
   LzToDz[DZInd]();
-
-  // Drop Block off
-  BlockPickup();
 
   // Display confirmation that in drop off zone
   lcd.clear();
   lcd.print("IN DROP-OFF ZONE");
   delay(1000);
+
+  // Drop Block off
+  BlockDropoff();
 
   // Reverse off block
   chasis.Drive(100.f, Backward);
