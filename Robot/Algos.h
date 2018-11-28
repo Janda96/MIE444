@@ -3,6 +3,7 @@
 // Standard Includes
 
 // Custom Includes
+#include "Types.h"
 
 //----------MAZE-------------
 
@@ -26,6 +27,12 @@ void SendLocMeasurements();
 
 // Utility functions
 bool inLoadingZone();
+
+bool isObsticalDetected();
+
+bool isWallDetected(Dir sensorDir);
+
+bool isLessThanDist(Dir sensorDir, float dist);
 
 // Crystal remote control
 void RemoteControl();

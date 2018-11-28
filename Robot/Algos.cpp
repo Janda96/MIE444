@@ -23,13 +23,13 @@ void GetToLZ()
       // Find orientation
       if (chasis.getLook() == Left)
       {
-          if (US.L.getDist() < WALL_DETECT_DIST)
+          if (isWallDetected(Dir::Left))
           {
             // keep going left until wall hit
             // By following the left wall
             err = chasis.FollowWall(LEFT_WALL);
           }
-          else if (US.R.getDist() < WALL_DETECT_DIST)
+          else if (isWallDetected(Dir::Right))
           {
             err = chasis.FollowWall(RIGHT_WALL);
           }
@@ -47,7 +47,7 @@ void GetToLZ()
             }
 
             // If up direction blocked go down
-            if (US.R.getDist() < WALL_DETECT_DIST)
+            if (isWallDetected(Dir::Right))
             {
               chasis.Turn(LEFT);
             }
@@ -83,7 +83,7 @@ void GetToLZ()
             }
 
             // If cannot go left, go down
-            if (US.L.getDist() < WALL_DETECT_DIST)
+            if (isWallDetected(Dir::Left))
             {
               chasis.Turn(ABOUT_FACE);
             }
@@ -219,9 +219,9 @@ bool inLoadingZone()
   // Case 1
   if (chasis.getLook() == Up)
   {
-    if (US.F.getDist() < WALL_DETECT_DIST && US.L.getDist() < WALL_DETECT_DIST)
+    if (isWallDetected(Dir::Front) && isWallDetected(Dir::Left))
     {
-      if (US.R.getDist() > WALL_DETECT_DIST && US.B.getDist() > WALL_DETECT_DIST)
+      if (!isWallDetected(Dir::Right) && !isWallDetected(Dir::Back))
       {
         return true;
       }
@@ -235,9 +235,9 @@ bool inLoadingZone()
   // Case 2
   else if (chasis.getLook() == Left)
   {
-    if (US.F.getDist() < WALL_DETECT_DIST && US.R.getDist() < WALL_DETECT_DIST)
+    if (isWallDetected(Dir::Front) && isWallDetected(Dir::Right))
     {
-      if (US.L.getDist() > WALL_DETECT_DIST&& US.B.getDist() > WALL_DETECT_DIST)
+      if (!isWallDetected(Dir::Left) && !isWallDetected(Dir::Back))
       {
         return true;
       }
@@ -271,7 +271,7 @@ void DriveIntoBlock(float searchWindowAngle)
   while(IRD.getDist() > 55.f)
   {
     // If obstical detected return
-    if (US.F.getDist() < OBSTACLE_DIST)
+    if (isObsticalDetected())
     {
       chasis.Stop();
       return;
@@ -281,7 +281,7 @@ void DriveIntoBlock(float searchWindowAngle)
   // Drive into the block
   for (auto i = 0; i < 7; ++i)
   {
-    if (US.F.getDist() < OBSTACLE_DIST)
+    if (isObsticalDetected())
     {
       chasis.Stop();
       return;
@@ -368,5 +368,32 @@ void RemoteControl()
         }
       }
     }
+  }
+}
+
+bool isWallDetected(Dir sensorDir)
+{
+  return isLessThanDist(sensorDir, WALL_DETECT_DIST);
+}
+
+bool isObsticalDetected()
+{
+  return isLessThanDist(Dir::Front, OBSTACLE_DIST);
+}
+
+bool isLessThanDist(Dir sensorDir, float dist)
+{
+  switch(sensorDir)
+  {
+    case Dir::Front:
+      return US.F.getDist() < dist;
+    case Dir::Back:
+      return US.B.getDist() < dist;
+    case Dir::Right:
+      return US.R.getDist() < dist;
+    case Dir::Left:
+      return US.L.getDist() < dist;
+    default:
+      return false;
   }
 }

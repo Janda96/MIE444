@@ -46,11 +46,12 @@ struct Point
    float y;
 };
 
-struct Pose
+enum class Dir
 {
-   float x;
-   float y;
-   Orientation O;
+  Front = 0,
+  Back = 1,
+  Left = 2,
+  Right = 3,
 };
 
 union encoderVals

@@ -112,7 +112,7 @@ ErrorCode DriveTrain::LostWall(bool isLeft)
 
     // Drive forward to clear the wall
     Drive(DEFAULT_SPEED, Forward);
-    delay(500);
+    delay(400);
     Stop();
 
     // Turn to the open direction
