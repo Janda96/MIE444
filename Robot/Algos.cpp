@@ -20,13 +20,13 @@ void GetToLZ()
   Serial3.println("Going to loading zone");
   while (!inLoadingZone())
   {
-      // Find orientation
+      // GOING LEFT
       if (chasis.getLook() == Left)
       {
+          // keep going left until wall hit
+          // By following the left wall
           if (isWallDetected(Dir::Left))
           {
-            // keep going left until wall hit
-            // By following the left wall
             err = chasis.FollowWall(LEFT_WALL);
           }
           else if (isWallDetected(Dir::Right))
@@ -45,16 +45,9 @@ void GetToLZ()
             {
               return;
             }
-
+              
             // If up direction blocked go down
-            if (isWallDetected(Dir::Right))
-            {
-              chasis.Turn(LEFT);
-            }
-            else  // Otherwise go up
-            {
-              chasis.Turn(RIGHT);
-            }
+            isWallDetected(Dir::Right) ? chasis.Turn(LEFT) : chasis.Turn(RIGHT);
           }
 
           // if wall disappears look for left wall
@@ -63,6 +56,8 @@ void GetToLZ()
               chasis.LookFor(LEFT_WALL);
           }
       }
+
+      // GOING UP
       if (chasis.getLook() == Up)
       {
         // look for left wall disappearing
@@ -82,30 +77,19 @@ void GetToLZ()
               return;
             }
 
-            // If cannot go left, go down
-            if (isWallDetected(Dir::Left))
-            {
-              chasis.Turn(ABOUT_FACE);
-            }
-            // Go left if clear
-            else
-            {
-              chasis.Turn(LEFT);
-            }
+            // If cannot go left, go down. Otherwise go left if clear
+            isWallDetected(Dir::Left) ? chasis.Turn(ABOUT_FACE) : chasis.Turn(LEFT);
         }
       }
+
+      // GOING DOWN
       if (chasis.getLook() == Down)
       {
-        // look for left wall disappearing
-        err = chasis.FollowWall(RIGHT_WALL);      // Follow right wall
-        if (err == WallDisapeared)
-        {
-          chasis.LostWall(RIGHT_WALL);
-        }
-        else
-        {
-          chasis.ClearObstacle();
-        }
+         // Follow right wall
+        err = chasis.FollowWall(RIGHT_WALL);    
+
+        // If right wall disapeared, turn right
+        err == WallDisapeared ? chasis.LostWall(RIGHT_WALL) : chasis.ClearObstacle();
     }
   }
 
