@@ -36,9 +36,14 @@ void loop()
   lcd.print(ReadBat());
 
   // Read in which drop off zone to go to
-  while(!Serial3.available());
-  int DZInd = Serial3.read();
-  DZInd -= 48;  // Need to offset for some reason
+  int DZInd = -10;
+  while(DZInd < 0 || DZInd > 3)
+  {
+     Serial3.println("Please Select a drop off zone");
+     while(!Serial3.available());
+     DZInd = Serial3.read();
+     DZInd -= 48;  // Need to offset for some reason
+  }
 
   // Display in loading zone
   lcd.clear();
