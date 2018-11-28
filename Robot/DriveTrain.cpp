@@ -82,7 +82,7 @@ ErrorCode DriveTrain::LostWall(bool isLeft)
 
     // Drive forward to clear the wall
     Drive(DEFAULT_SPEED, Forward);
-    delay(600);
+    delay(500);
     Stop();
 
     // Turn to the open direction
@@ -149,8 +149,8 @@ void DriveTrain::UpdateSpeed(float wallDist, bool isLeft)
 
   // Find speed update and limit
   float speedUpdate = kp * p + kd * d;
-  speedUpdate = min(speedUpdate, 12);
-  speedUpdate = max(speedUpdate, -12);
+  speedUpdate = min(speedUpdate, 20);
+  speedUpdate = max(speedUpdate, -20);
 
   // Update motor speeds based on control input
   float rSpeed, lSpeed;
@@ -219,7 +219,7 @@ void DriveTrain::Turn(float angle)
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
 
-  float DelayGain = angle > 0 ? 400.f : 400.f;
+  float DelayGain = angle > 0 ? 405.f : 405.f;
 
   // Turn loop
   L.drive(lSpeed);  // NOTE: Might need to adjust speeds for specific sides

@@ -37,7 +37,7 @@ void GetToLZ()
           }
           else
           {
-            err = chasis.LookFor(LEFT_WALL);
+            err = chasis.LookFor(RIGHT_WALL);
           }
 
           // if wall hit turn up
@@ -91,7 +91,15 @@ void GetToLZ()
         err = chasis.FollowWall(RIGHT_WALL);    
 
         // If right wall disapeared, turn right
-        err == WallDisapeared ? chasis.LostWall(RIGHT_WALL) : chasis.ClearObstacle();
+        if (err == WallDisapeared)
+        {
+          chasis.LostWall(RIGHT_WALL);
+          chasis.FollowWall(LEFT_WALL);
+        }
+        else
+        {
+          chasis.ClearObstacle();
+        }
     }
   }
 
