@@ -38,4 +38,6 @@ void BlockDropoff();
 
 bool isBlockDetected();
 
+void DriveIntoBlock(float searchWindowAngle);
+
 void TurnTowardsBlock(float searchWindowAngle);

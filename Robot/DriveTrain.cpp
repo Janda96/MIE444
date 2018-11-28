@@ -18,13 +18,11 @@
 #define DEFAULT_SPEED_R DEFAULT_SPEED
 #define DEFAULT_SPEED_L MOTOR_CALIB * DEFAULT_SPEED_R
 
-// Wall Avoidance Related
-#define OBSTACLE_DIST 90.f
-#define WALL_LOST_DIST 150.f
-
-ErrorCode DriveTrain::FollowWall(UltraSonic& follower, bool isLeft)
+ErrorCode DriveTrain::FollowWall(bool isLeft)
 {
     Serial3.println("Following Wall");
+
+    UltraSonic& follower = isLeft ? US.L : US.R;
 
     double x, y, angle, distSinceLoc;
     float wallDist = 0.f;
@@ -57,10 +55,11 @@ ErrorCode DriveTrain::FollowWall(UltraSonic& follower, bool isLeft)
     return ObstacleDetected;
 }
 
-ErrorCode DriveTrain::LookFor(UltraSonic& follower)
+ErrorCode DriveTrain::LookFor(bool isLeft)
 {
     Serial3.println("Looking for wall");
-
+    UltraSonic& follower = isLeft ? US.L : US.R;
+    
     // Initialize encoder outputs
     double x, y, angle, distSinceLoc;
 
@@ -117,7 +116,7 @@ ErrorCode DriveTrain::LostWall(bool isLeft)
     Stop();
 
     // Turn to the open direction
-    isLeft ? Turn(90) : Turn(-90);
+    isLeft ? Turn(LEFT) : Turn(RIGHT);
 
     // Drive forward to find a new wall
     // So long as no obstacle is found
@@ -149,15 +148,15 @@ ErrorCode DriveTrain::ClearObstacle()
     {
         if (lDist > OBSTACLE_DIST)
         {
-          Turn(90.f);
+          Turn(LEFT);
         }
         else if (rDist > OBSTACLE_DIST)
         {
-          Turn(-90.f);
+          Turn(RIGHT);
         }
         else if (bDist > OBSTACLE_DIST)
         {
-          Turn(180.f);
+          Turn(ABOUT_FACE);
         }
         else
         {
@@ -218,7 +217,7 @@ void DriveTrain::DriveIntoWall(int vel, bool turnLeft)
 
   // Stop and turn left or right accordinly
   Stop();
-  turnLeft ? Turn(-90.f) : Turn(90.f);
+  turnLeft ? Turn(LEFT) : Turn(RIGHT);
 }
 
 void DriveTrain::Drive(int vel, Direction d)
@@ -247,7 +246,7 @@ void DriveTrain::Turn(float angle)
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
 
-  float DelayGain = angle > 0 ? 380.f : 380.f;
+  float DelayGain = angle > 0 ? 400.f : 400.f;
 
   // Turn loop
   L.drive(lSpeed);  // NOTE: Might need to adjust speeds for specific sides

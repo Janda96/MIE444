@@ -29,7 +29,7 @@ int DZInd = 0;
 void loop()
 {
   lcd.print(ReadBat());
-  
+
   // Get to Lz, pickup block and go to DZ
   GetToLZ();
 
@@ -65,10 +65,20 @@ void loop()
   // Drop Block off
   BlockPickup();
 
+  // Display confirmation that in drop off zone
+  lcd.clear();
+  lcd.print("IN DROP-OFF ZONE");
+  delay(1000);
+
   // Reverse off block
   chasis.Drive(100.f, Backward);
   delay(1000);
   chasis.Stop();
+
+  // Display confirmation that block is dropped off
+  lcd.clear();
+  lcd.print("BLOCK DROPPED OFF");
+  delay(1000);
   
   // STOP
   while(true);

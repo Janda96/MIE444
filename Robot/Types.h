@@ -4,6 +4,19 @@
 
 // Custom Includes
 
+// Wall Avoidance Related
+#define OBSTACLE_DIST 90.f
+#define WALL_LOST_DIST 150.f
+
+// TURNING
+#define RIGHT -90.f
+#define LEFT 90.f
+#define ABOUT_FACE 180.f
+
+// WAll
+#define RIGHT_WALL false
+#define LEFT_WALL true
+
 enum ErrorCode
 {
   OK = 0,

@@ -13,9 +13,9 @@ class DriveTrain
 public:
 
   // Core high level maze navigation functions
-  ErrorCode FollowWall(UltraSonic& follower, bool isLeft);
+  ErrorCode FollowWall(bool isLeft);
 
-  ErrorCode LookFor(UltraSonic& follower);
+  ErrorCode LookFor(bool isLeft);
 
   ErrorCode LostWall(bool isLeft);
 
