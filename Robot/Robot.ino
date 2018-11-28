@@ -14,7 +14,6 @@
 ErrorCode errMain = OK;
 
 // Drop Off Zone index
-int DZInd = 0;
 
 void setup()
 {
@@ -33,7 +32,13 @@ void setup()
 
 void loop()
 {
+  
   lcd.print(ReadBat());
+
+  // Read in which drop off zone to go to
+  while(!Serial3.available());
+  int DZInd = Serial3.read();
+  DZInd -= 48;  // Need to offset for some reason
 
   // Display in loading zone
   lcd.clear();
