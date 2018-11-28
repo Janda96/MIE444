@@ -33,6 +33,8 @@ public:
   // Accessor Functions
   Orientation getLook();
 
+  void setLook(Orientation look);
+
   // Constructor
   DriveTrain(Motor L, Motor R, UltraSonicArray US);
 
@@ -40,6 +42,8 @@ private:
 
   // Control loop to make sure driving straight
   void UpdateSpeed(float wallDist, bool isLeft);
+
+  void DisplayHeading();
 
   void TakeAndSendLocMeasurement();
 

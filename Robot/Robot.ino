@@ -90,8 +90,10 @@ void loop()
   // Towards the drop off zone
   chasis.DriveIntoWall(100.f, !turnLeft);
 
+  turnLeft ? chasis.setLook(Right) : chasis.setLook(Down);
+
   lcd.clear();
-  lcd.print("GOING TO DROP OFF ZONE");
+  lcd.print("GOING TO DZ");
 
   // Get to the drop off zone
   LzToDz[DZInd]();

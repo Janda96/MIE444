@@ -21,7 +21,8 @@
 ErrorCode DriveTrain::FollowWall(bool isLeft)
 {
     Serial3.println("Following Wall");
-
+    DisplayHeading();
+    
     UltraSonic& follower = isLeft ? US.L : US.R;
 
     float wallDist = 0.f;
@@ -45,6 +46,8 @@ ErrorCode DriveTrain::FollowWall(bool isLeft)
 ErrorCode DriveTrain::LookFor(bool isLeft)
 {
     Serial3.println("Looking for wall");
+    DisplayHeading();
+    
     UltraSonic& follower = isLeft ? US.L : US.R;
 
     // Drive until a wall is found
@@ -79,6 +82,8 @@ ErrorCode DriveTrain::LostWall(bool isLeft)
     Stop();
     delay(1000);
     Serial3.println("Lost Wall");
+
+    DisplayHeading();
 
     // Drive forward to clear the wall
     Drive(DEFAULT_SPEED, Forward);
@@ -210,11 +215,17 @@ void DriveTrain::Turn(float angle)
 
   static int turnSpeed = 100;
 
+  bool isRightTurn = static_cast<int>(angle) % 90 == 0;
+
   angle = angle * DEG2RAD;
 
   // Update orientation
-  updateOrientation(angle);
-
+  if (isRightTurn)
+  {
+      updateOrientation(angle);
+      DisplayHeading();
+  }
+  
   // Find the direction the wheels have to turn
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
@@ -253,6 +264,58 @@ void DriveTrain::updateOrientation(float angle)
   Look.y = fuzzyComp(Look.y, 0.f) ? 0.f : Look.y;
   Look.y = fuzzyComp(Look.y, 1.f) ? 1.f : Look.y;
   Look.y = fuzzyComp(Look.y, -1.f) ? -1.f : Look.y;
+}
+
+void DriveTrain::setLook(Orientation O)
+{
+  switch(O)
+  {
+    case Up:
+      Look.x = 0.f;
+      Look.y = 1.f;
+      break;
+    case Down:
+      Look.x = 0.f;
+      Look.y = -1.f;
+      break;
+    case Right:
+      Look.x = 1.f;
+      Look.y = 0.f;
+      break;
+    case Left:
+      Look.x = -1.f;
+      Look.y = 0.f;
+      break;
+  }
+  DisplayHeading();
+}
+
+void DriveTrain::DisplayHeading()
+{
+  lcd.setCursor(0, 3);
+  lcd.print("                     ");
+  lcd.setCursor(0, 3);
+  lcd.print("HEADING: ");
+  auto O = getLook();
+  switch(O)
+  {
+    case Up:
+      lcd.print("UP");
+      break;
+    case Down:
+      lcd.print("DOWN");
+      break;
+    case Right:
+      lcd.print("RIGHT");
+      break;
+    case Left:
+      lcd.print("LEFT");
+      break;
+    default:
+      lcd.print("DUNNO");
+      break;
+  }
+  lcd.setCursor(0, 0);
 }
 
 void DriveTrain::TakeAndSendLocMeasurement()
