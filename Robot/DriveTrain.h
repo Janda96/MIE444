@@ -12,54 +12,50 @@ class DriveTrain
 {
 public:
 
-  ErrorCode FollowWall(UltraSonic& follower, bool isLeft);
+  // Core high level maze navigation functions
+  ErrorCode FollowWall(bool isLeft);
 
-  ErrorCode LookFor(UltraSonic& follower);
+  ErrorCode LookFor(bool isLeft);
 
   ErrorCode LostWall(bool isLeft);
-  
-  void Drive(int vel, Direction d);
 
-  void Drive2(int vel, Direction d);
+  ErrorCode ClearObstacle();
 
   void DriveIntoWall(int vel, bool turnLeft);
+
+  // Low level navigation functions
+  void Drive(int vel, Direction d);
 
   void Turn(float angle);
 
   void Stop();
 
-  void set(int vel, bool isLeft);
-
-  DriveTrain(Motor L, Motor R, UltraSonicArray US, float wheelbase);
-
-  void MakeWallParallel(UltraSonic* follower, float searchWindowAngle);
-
+  // Accessor Functions
   Orientation getLook();
 
-  ErrorCode ClearObstacle();
+  void setLook(Orientation look);
+
+  // Constructor
+  DriveTrain(Motor L, Motor R, UltraSonicArray US);
 
 private:
 
-  bool isObsticalDetected();
-
-  void AvoidWall();
-
-  void AvoidWall(UltraSonic& DistSensor, bool isLeft);
-  
   // Control loop to make sure driving straight
   void UpdateSpeed(float wallDist, bool isLeft);
 
+  void DisplayHeading();
+
+  void TakeAndSendLocMeasurement();
+
   void updateOrientation(float angle);
+
+  bool isObsticalDetected();
 
 private: /* DATA */
   
   // DriveTrain Modules
-  Motor L;            // Left motor
-  Motor R;            // Right motor
+  Motor L, R;            // Left and Right motors
   UltraSonicArray US; // Ultrasonic array on robot    
-
-  // DriveTrain Parameters
-  float wheelbase;    // Distance between wheels
 
   // Control parameters
   float targetDist = 65.f;  // Target distance to follow wall
@@ -73,5 +69,6 @@ private: /* DATA */
   // Orientation
   Point Look;
 
+  // Error code
   ErrorCode m_err = OK;
 };

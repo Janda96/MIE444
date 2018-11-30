@@ -8,6 +8,8 @@
 #include "Types.h"
 #include "Util.h"
 
+#define WALL_DETECT_DIST 150.f
+
 ErrorCode err = OK;
 
 voidFuncType LzToDz[4] = {&LzToDz1, &LzToDz2, &LzToDz3, &LzToDz4};
@@ -18,22 +20,24 @@ void GetToLZ()
   Serial3.println("Going to loading zone");
   while (!inLoadingZone())
   {
-      // Find orientation
+      // GOING LEFT
       if (chasis.getLook() == Left)
       {
-          if (US.L.getDist() < 100.f)
+          Serial3.println("GOING LEFT");
+          // keep going left until wall hit
+          // By following the left wall
+          if (isWallDetected(Dir::Right))
           {
-            // keep going left until wall hit
-            // By following the left wall
-            err = chasis.FollowWall(US.L, true);
+            Serial3.println("Following Right Wall");
+            err = chasis.FollowWall(RIGHT_WALL);
           }
-          else if (US.R.getDist() < 100.f)
+          else if (isWallDetected(Dir::Left))
           {
-            err = chasis.FollowWall(US.R, false);
+            err = chasis.FollowWall(LEFT_WALL);
           }
           else
           {
-            err = chasis.LookFor(US.L);
+            err = chasis.LookFor(RIGHT_WALL);
           }
 
           // if wall hit turn up
@@ -43,24 +47,28 @@ void GetToLZ()
             {
               return;
             }
-            chasis.Turn(-90.f);
+              
+            // If up direction blocked go down
+            isWallDetected(Dir::Right) ? chasis.Turn(LEFT) : chasis.Turn(RIGHT);
           }
 
           // if wall disappears look for left wall
           if (err == WallDisapeared)
           {
-              chasis.LookFor(US.L);
+              chasis.LookFor(LEFT_WALL);
           }
       }
+
+      // GOING UP
       if (chasis.getLook() == Up)
       {
         // look for left wall disappearing
-        err = chasis.FollowWall(US.L, true);      // Follow left wall
+        err = chasis.FollowWall(LEFT_WALL);      // Follow left wall
 
         // if left wall disappears turn left
         if (err == WallDisapeared)
         {
-            chasis.LostWall(true);
+            chasis.LostWall(LEFT_WALL);
         }
 
         // if wall hit
@@ -71,25 +79,22 @@ void GetToLZ()
               return;
             }
 
-            // If cannot go left, go down
-            if (US.L.getDist() < 100.f)
-            {
-              chasis.Turn(-180.f);
-            }
-            // Go left if clear
-            else
-            {
-              chasis.Turn(90.f);
-            }
+            // If cannot go left, go down. Otherwise go left if clear
+            isWallDetected(Dir::Left) ? chasis.Turn(ABOUT_FACE) : chasis.Turn(LEFT);
         }
       }
+
+      // GOING DOWN
       if (chasis.getLook() == Down)
       {
-        // look for left wall disappearing
-        err = chasis.FollowWall(US.R, false);      // Follow right wall
+        // Follow right wall
+        err = chasis.FollowWall(RIGHT_WALL);    
+
+        // If right wall disapeared, turn right
         if (err == WallDisapeared)
         {
-          chasis.LostWall(false);
+          chasis.LostWall(RIGHT_WALL);
+          chasis.FollowWall(LEFT_WALL);
         }
         else
         {
@@ -97,6 +102,10 @@ void GetToLZ()
         }
     }
   }
+
+  // Display confirmation that in loading zone
+  lcd.clear();
+  lcd.print("IN LOADING ZONE");
 }
 
 // Travel from Loading zone to top left
@@ -105,16 +114,16 @@ void LzToDz1()
 {
   Serial3.println("Going to drop off zone 1");
   
-  chasis.FollowWall(US.L, true);      // Follow left wall
-  chasis.Turn(-90);                   // Turn right 90 degrees
-  chasis.FollowWall(US.L, true);      // Follow Left wall
-  chasis.LookFor(US.R);               // Look for right wall
-  chasis.FollowWall(US.R, false);     // Follow right wall
-  chasis.Turn(90);                    // Turn left 90 degrees
-  chasis.FollowWall(US.R, false);     // Follow right wall
-	chasis.LostWall(true);              // Lost wall turn left
-  chasis.LookFor(US.R);               // Look for right wall
-	chasis.FollowWall(US.R, false);     // Follow right wall
+  chasis.FollowWall(LEFT_WALL);       // Follow left wall
+  chasis.Turn(RIGHT);                 // Turn right 90 degrees
+  chasis.FollowWall(LEFT_WALL);       // Follow Left wall
+  chasis.LookFor(RIGHT_WALL);         // Look for right wall
+  chasis.FollowWall(RIGHT_WALL);      // Follow right wall
+  chasis.Turn(LEFT);                  // Turn left 90 degrees
+  chasis.FollowWall(RIGHT_WALL);      // Follow right wall
+	chasis.LostWall(LEFT_WALL);         // Lost wall turn left
+  chasis.LookFor(RIGHT_WALL);         // Look for right wall
+	chasis.FollowWall(RIGHT_WALL);      // Follow right wall
   chasis.Stop();                      // Stop and drop off
 }
 
@@ -124,28 +133,28 @@ void LzToDz2()
 {
   Serial3.println("Going to drop off zone 2");
     
-  chasis.FollowWall(US.L, true);      // Follow left wall
-  chasis.Turn(-90);                   // Turn right 90 degrees
+  chasis.FollowWall(LEFT_WALL);       // Follow left wall
+  chasis.Turn(RIGHT);                 // Turn right 90 degrees
 
   chasis.Stop();
   delay(500);
 
-  chasis.FollowWall(US.L, true);      // Follow Left wall
-  chasis.LookFor(US.R);               // Look for right wall
-  chasis.FollowWall(US.R, false);     // Follow right wall
-  chasis.Turn(90);                    // Turn left 90 degrees
+  chasis.FollowWall(LEFT_WALL);       // Follow Left wall
+  chasis.LookFor(RIGHT_WALL);         // Look for right wall
+  chasis.FollowWall(RIGHT_WALL);      // Follow right wall
+  chasis.Turn(LEFT);                  // Turn left 90 degrees
 
   chasis.Stop();
   delay(500);
 
-  chasis.FollowWall(US.R, false);     // Follow right wall
+  chasis.FollowWall(RIGHT_WALL);      // Follow right wall
 
   delay(500);
 
-  chasis.LookFor(US.L);               // Look for left wall (drive forward)
-  chasis.FollowWall(US.L, true);      // Follow left wall
-  chasis.LostWall(true);              // Lost wall turn left
-  chasis.FollowWall(US.R, false);     // Follow right wall
+  chasis.LookFor(LEFT_WALL);          // Look for left wall (drive forward)
+  chasis.FollowWall(LEFT_WALL);       // Follow left wall
+  chasis.LostWall(LEFT_WALL);         // Lost wall turn left
+  chasis.FollowWall(RIGHT_WALL);      // Follow right wall
   chasis.Stop();                      // Stop and drop off
 }
 
@@ -155,32 +164,32 @@ void LzToDz3()
 {
   Serial3.println("Going to drop off zone 3");
     
-  chasis.FollowWall(US.L, true);      // Follow left wall
-  chasis.Turn(-90);                   // Turn right 90 degrees
+  chasis.FollowWall(LEFT_WALL);      // Follow left wall
+  chasis.Turn(RIGHT);                 // Turn right 90 degrees
 
   chasis.Stop();
   delay(500);
 
-  chasis.FollowWall(US.L, true);      // Follow Left wall
-  chasis.LookFor(US.R);               // Look for right wall
-  chasis.FollowWall(US.R, false);     // Follow right wall
-  chasis.Turn(90);                    // Turn left 90 degrees
+  chasis.FollowWall(LEFT_WALL);      // Follow Left wall
+  chasis.LookFor(RIGHT_WALL);        // Look for right wall
+  chasis.FollowWall(RIGHT_WALL);     // Follow right wall
+  chasis.Turn(LEFT);                 // Turn left 90 degrees
 
   chasis.Stop();
   delay(500);
 
-  chasis.FollowWall(US.R, false);     // Follow right wall
+  chasis.FollowWall(RIGHT_WALL);     // Follow right wall
 
   delay(500);
 
-  chasis.LookFor(US.R);               // Look for Right wall (drive forward)
+  chasis.LookFor(RIGHT_WALL);        // Look for Right wall (drive forward)
 
   chasis.Stop();
   delay(500);
 
-  chasis.FollowWall(US.R, false);     // Follow Right wall
-  chasis.LostWall(false);             // Lost wall turn right
-  chasis.FollowWall(US.L, true);      // Follow left wall
+  chasis.FollowWall(RIGHT_WALL);     // Follow Right wall
+  chasis.LostWall(RIGHT_WALL);             // Lost wall turn right
+  chasis.FollowWall(LEFT_WALL);      // Follow left wall
   chasis.Stop();                      // Stop and drop off
 }
 
@@ -190,12 +199,12 @@ void LzToDz4()
 {
   Serial3.println("Going to drop off zone 4");
     
-  chasis.FollowWall(US.R, false);     // Follow left wall
-  chasis.Turn(90);                    // Turn left 90 degrees
-  chasis.LookFor(US.L);               // Look for left wall
-  chasis.FollowWall(US.L, true);      // Look for left wall
-  chasis.LostWall(true);              // Lost wall turn left
-  chasis.FollowWall(US.R, false);     // Follow right wall
+  chasis.FollowWall(RIGHT_WALL);     // Follow left wall
+  chasis.Turn(LEFT);                 // Turn left 90 degrees
+  chasis.LookFor(LEFT_WALL);         // Look for left wall
+  chasis.FollowWall(LEFT_WALL);      // Look for left wall
+  chasis.LostWall(LEFT_WALL);        // Lost wall turn left
+  chasis.FollowWall(RIGHT_WALL);     // Follow right wall
   chasis.Stop();
 }
 
@@ -204,9 +213,9 @@ bool inLoadingZone()
   // Case 1
   if (chasis.getLook() == Up)
   {
-    if (US.F.getDist() < 150.f && US.L.getDist() < 150.f)
+    if (isWallDetected(Dir::Front) && isWallDetected(Dir::Left))
     {
-      if (US.R.getDist() > 150.f && US.B.getDist() > 150.f)
+      if (!isWallDetected(Dir::Right) && !isWallDetected(Dir::Back))
       {
         return true;
       }
@@ -220,9 +229,9 @@ bool inLoadingZone()
   // Case 2
   else if (chasis.getLook() == Left)
   {
-    if (US.F.getDist() < 150.f && US.R.getDist() < 150.f)
+    if (isWallDetected(Dir::Front) && isWallDetected(Dir::Right))
     {
-      if (US.L.getDist() > 150.f && US.B.getDist() > 150.f)
+      if (!isWallDetected(Dir::Left) && !isWallDetected(Dir::Back))
       {
         return true;
       }
@@ -246,9 +255,40 @@ bool isBlockDetected()
 	return topDist > 200.f && bottomDist < 200.f;
 }
 
+void DriveIntoBlock(float searchWindowAngle)
+{
+  TurnTowardsBlock(searchWindowAngle);
+  
+  chasis.Drive(100.f, Forward);
+
+  // Drive until you get close to block
+  while(IRD.getDist() > 55.f)
+  {
+    // If obstical detected return
+    if (isObsticalDetected())
+    {
+      chasis.Stop();
+      return;
+    }
+  }
+
+  // Drive into the block
+  for (auto i = 0; i < 10; ++i)
+  {
+    if (isObsticalDetected())
+    {
+      chasis.Stop();
+      return;
+    }
+    delay(100);
+  }
+  
+  chasis.Stop();
+}
+
 void TurnTowardsBlock(float searchWindowAngle)
 {
-  static float angleIncrement = (2.f * searchWindowAngle) / 20.f;
+  static float angleIncrement = (2.f * searchWindowAngle) / 10.f;
 
   chasis.Turn(-1.f * searchWindowAngle);
 
@@ -266,149 +306,9 @@ void TurnTowardsBlock(float searchWindowAngle)
     }
     chasis.Turn(angleIncrement);
     delay(500);
-    Serial3.println(angle);
-    Serial3.println(dist);
   }
 
-
-  chasis.Turn(minAngle - searchWindowAngle + 50);
-  Serial3.println();
-  Serial3.println(minAngle);
-}
-
-// Localization Code
-#define WALL_DIST 100.f
-#define NUM_MEASUREMENTS 20
-char orientationArr[NUM_MEASUREMENTS];
-char USReadingArr[NUM_MEASUREMENTS];
-
-int sumIntArr(int* arr, int sizeOfArr)
-{
-  int sum = 0;
-  for (auto i = 0; i < sizeOfArr; ++i)
-  {
-    sum += arr[i];
-  }
-  return sum;
-}
-
-bool areWallsOpposite(int* arr)
-{
-  if (arr[0] == 1 && arr[1] == 1)
-  {
-    return true;
-  }
-  else if (arr[2] == 1 && arr[3] == 1)
-  {
-    return true;
-  }
-  else
-  {
-    return false;
-  }
-}
-
-char getMappedUSReadings()
-{
-  bool isFrontWall = US.F.getDist() < WALL_DIST;
-  bool isBackWall = US.B.getDist() < WALL_DIST;
-  bool isRightWall = US.R.getDist() < WALL_DIST;
-  bool isLeftWall = US.L.getDist() < WALL_DIST;
-
-  int walls[4] = {isFrontWall, isBackWall, isRightWall, isLeftWall};
-
-  if (sumIntArr(walls, 4) == 0)
-  {
-      return '0';
-  }
-  if (sumIntArr(walls, 4) == 1)
-  {
-      return '1';
-  }
-  if (sumIntArr(walls, 4) == 3)
-  {
-      return '3';
-  }
-  if (sumIntArr(walls, 4) == 2)
-  {
-    if (areWallsOpposite(walls))
-    {
-      return '5';
-    }
-    else
-    {
-      return '2';
-    }
-  }
-  else
-  {
-    return '4';
-  }
-}
-
-void TakeLocMeasurement(int ind)
-{
-  USReadingArr[ind] = getMappedUSReadings();
-
-  char look;
-  Orientation O = chasis.getLook();
-  Serial3.print(O);
-  if (O == Up)
-  {
-    look = 'U';
-  }
-  if (O == Down)
-  {
-    look = 'D';
-  }
-  if (O == Left)
-  {
-    look = 'L';
-  }
-  if (O == Right)
-  {
-    look = 'R';
-  }
-  orientationArr[ind] = look;
-}
-
-void SendLocMeasurements()
-{
-  char USReading = getMappedUSReadings();
-  char look;
-  Orientation O = chasis.getLook();
-  Serial.print(O);
-  if (O == Up)
-  {
-    look = 'U';
-  }
-  if (O == Down)
-  {
-    look = 'D';
-  }
-  if (O == Left)
-  {
-    look = 'L';
-  }
-  if (O == Right)
-  {
-    look = 'R';
-  }
-
-  Serial3.println(USReading);
-  Serial3.println(look);
-}
-
-void Localize()
-{
-  for (auto i = 0; i < NUM_MEASUREMENTS; ++i)
-  {
-    TakeLocMeasurement(i);
-    chasis.Drive(100.f, Forward);
-    delay(500);
-    chasis.Stop();
-  }
-  SendLocMeasurements();
+  chasis.Turn(minAngle - searchWindowAngle + 30.f);
 }
 
 void BlockPickup()
@@ -462,5 +362,32 @@ void RemoteControl()
         }
       }
     }
+  }
+}
+
+bool isWallDetected(Dir sensorDir)
+{
+  return isLessThanDist(sensorDir, WALL_DETECT_DIST);
+}
+
+bool isObsticalDetected()
+{
+  return isLessThanDist(Dir::Front, OBSTACLE_DIST);
+}
+
+bool isLessThanDist(Dir sensorDir, float dist)
+{
+  switch(sensorDir)
+  {
+    case Dir::Front:
+      return US.F.getDist() < dist;
+    case Dir::Back:
+      return US.B.getDist() < dist;
+    case Dir::Right:
+      return US.R.getDist() < dist;
+    case Dir::Left:
+      return US.L.getDist() < dist;
+    default:
+      return false;
   }
 }
