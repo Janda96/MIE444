@@ -314,30 +314,30 @@ void TurnTowardsBlock(float searchWindowAngle)
 void BlockPickup()
 {  
   // Turn servo down to (10) degree to touch the block
-  for (int pos = 40; pos >= 10; --pos) 
+  for (int pos = 80; pos >= 5; --pos) 
   {
     MyServo.write(pos);
-    delay(20);
+    delay(10);
   }
   
   // Wait for 1s before raising arm
-  delay (1000);
+  delay (2000);
   
   // Raise arm by turning servo up to (130) degree to lift block
-  for (int pos = 10; pos <=  130; ++pos) 
+  for (int pos = 5; pos <=  80; ++pos) 
   {
     MyServo.write(pos);
-    delay(30);
+    delay(10);
   }
 }
 
 void BlockDropoff()
 {
     int pos = MyServo.read();
-    for (pos; pos <= 180; ++pos) 
+    for (pos; pos <= 150; ++pos) 
     {
       MyServo.write(pos);
-      delay(30);
+      delay(10);
     }
 }
 
