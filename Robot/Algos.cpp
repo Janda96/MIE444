@@ -10,7 +10,7 @@
 #include "Util.h"
 
 #define COMPASS_ADDRESS 0x21
-#define LEFT_HEADING 250.f
+#define LEFT_HEADING 17.f
 #define WALL_DETECT_DIST 150.f
 
 ErrorCode err = OK;
@@ -317,30 +317,30 @@ void TurnTowardsBlock(float searchWindowAngle)
 void BlockPickup()
 {  
   // Turn servo down to (10) degree to touch the block
-  for (int pos = 40; pos >= 10; --pos) 
+  for (int pos = 150; pos >= 10; --pos) 
   {
     MyServo.write(pos);
-    delay(20);
+    delay(5);
   }
   
   // Wait for 1s before raising arm
   delay (1000);
   
   // Raise arm by turning servo up to (130) degree to lift block
-  for (int pos = 10; pos <=  130; ++pos) 
+  for (int pos = 10; pos <=  80; ++pos) 
   {
     MyServo.write(pos);
-    delay(30);
+    delay(5);
   }
 }
 
 void BlockDropoff()
 {
     int pos = MyServo.read();
-    for (pos; pos <= 180; ++pos) 
+    for (pos; pos <= 150; ++pos) 
     {
       MyServo.write(pos);
-      delay(30);
+      delay(5);
     }
 }
 
@@ -382,33 +382,32 @@ void TurnLeftWithRandomOrientation()
       chasis.Turn(LEFT);
       heading = Compass.GetHeadingDegrees();
    }
-   Serial.println("POINTING LEFT");
 }
 
 void PrintHeading()
 {
   float heading = Compass.GetHeadingDegrees();
-  Serial.println(heading);
+  Serial3.println(heading);
 }
 
 void compassCalibrate()
 {
-  Serial.println("Calibration Mode");
+  Serial3.println("Calibration Mode");
   delay(1000);  //1 second before starting
-  Serial.println("Start");
+  Serial3.println("Start");
 
   Wire.beginTransmission(COMPASS_ADDRESS);
   Wire.write(0x43);
   Wire.endTransmission();
   for(int i=0;i<15;i++)  //15 seconds
   {       
-    Serial.println(i);
+    Serial3.println(i);
     delay(1000);
   }
   Wire.beginTransmission(COMPASS_ADDRESS);
   Wire.write(0x45);
   Wire.endTransmission();
-  Serial.println("done");
+  Serial3.println("done");
 }
 
 bool isWallDetected(Dir sensorDir)

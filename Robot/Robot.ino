@@ -26,7 +26,7 @@ void setup()
 
   // Setup servo and center
   MyServo.attach(SERVO_PWM);
-  MyServo.write(0.f);
+  MyServo.write(150.f);
 
   // Compass calibration 
   // (Uncomment when needed, only has to be done once and takes 15 seconds)
@@ -45,6 +45,10 @@ void setup()
 
 void loop()
 {
+
+//  chasis.Turn(360.f);
+//  delay(1000);
+//  return;
   
   lcd.print(ReadBat());
 
@@ -78,7 +82,7 @@ void loop()
   // Display in loading zone
   lcd.clear();
   lcd.print("IN LOADING ZONE");
-  delay(5000);
+  delay(1000);
 
   lcd.clear();
   lcd.print("TURNING TOWARDS BLOCK");
@@ -140,5 +144,11 @@ void loop()
   delay(1000);
   
   // STOP
-  while(true);
+  DZInd = -10;
+  while(DZInd != 0)
+  {
+     while(!Serial3.available());
+     DZInd = Serial3.read();
+     DZInd -= 48;  // Need to offset for some reason
+  }
 }
