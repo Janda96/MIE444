@@ -1,6 +1,7 @@
 #include "Algos.h"
 
 // Standard Includes
+#include <Wire.h>
 
 // Custom Includes
 #include "Arduino.h"
@@ -8,6 +9,8 @@
 #include "Types.h"
 #include "Util.h"
 
+#define COMPASS_ADDRESS 0x21
+#define LEFT_HEADING 0.f
 #define WALL_DETECT_DIST 150.f
 
 ErrorCode err = OK;
@@ -363,6 +366,42 @@ void RemoteControl()
       }
     }
   }
+}
+
+float angleDiff(float a1, float a2)
+{
+  return 180 - abs(abs(a1 - a2) - 180); 
+}
+
+void TurnLeftWithRandomOrientation()
+{
+   float heading = Compass.GetHeadingDegrees();
+   while(abs(angleDiff(heading, LEFT_HEADING)) < 30.f)
+   {
+      // Turn left and take new measurement
+      chasis.Turn(LEFT);
+      heading = Compass.GetHeadingDegrees();
+   }
+}
+
+void compassCalibrate()
+{
+  Serial.println("Calibration Mode");
+  delay(1000);  //1 second before starting
+  Serial.println("Start");
+
+  Wire.beginTransmission(COMPASS_ADDRESS);
+  Wire.write(0x43);
+  Wire.endTransmission();
+  for(int i=0;i<15;i++)  //15 seconds
+  {       
+    Serial.println(i);
+    delay(1000);
+  }
+  Wire.beginTransmission(COMPASS_ADDRESS);
+  Wire.write(0x45);
+  Wire.endTransmission();
+  Serial.println("done");
 }
 
 bool isWallDetected(Dir sensorDir)

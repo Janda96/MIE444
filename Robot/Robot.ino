@@ -23,6 +23,18 @@ void setup()
   MyServo.attach(SERVO_PWM);
   MyServo.write(0.f);
 
+  // Compass calibration 
+  // (Uncomment when needed, only has to be done once and takes 15 seconds)
+  // compassCalibrate();
+
+  // Compas setup
+  Compass.SetDeclination(-10, 26, 'W');  
+  Compass.SetSamplingMode(COMPASS_SINGLE);
+  
+  // Sensitivity (higher is less sensitive, values are 088, 130 (default), 190, 250, 400, 470, 560, 810
+  Compass.SetScale(COMPASS_SCALE_250);  
+  Compass.SetOrientation(COMPASS_HORIZONTAL_X_NORTH);
+
   Serial.begin(9600);
   Serial1.begin(9600);
   Serial3.begin(9600);
@@ -44,6 +56,10 @@ void loop()
      DZInd = Serial3.read();
      DZInd -= 48;  // Need to offset for some reason
   }
+
+  // Make sure looking left and set starting orientation left
+  TurnLeftWithRandomOrientation();
+  chasis.setLook(Left);
 
   // Display in loading zone
   lcd.clear();

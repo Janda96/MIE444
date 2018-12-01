@@ -48,3 +48,9 @@ bool isBlockDetected();
 void DriveIntoBlock(float searchWindowAngle);
 
 void TurnTowardsBlock(float searchWindowAngle);
+
+//------RANDOM ORIENTATION-----
+
+void TurnLeftWithRandomOrientation();
+
+void compassCalibrate();
