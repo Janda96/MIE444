@@ -2,6 +2,7 @@
 
 // Standard Includes
 #include <Servo.h>
+#include <Wire.h>
 
 // Custom Includes
 #include "Types.h"
@@ -18,6 +19,10 @@ ErrorCode errMain = OK;
 void setup()
 {
   lcd.begin(20, 4);
+  Wire.begin();
+  Serial.begin(9600);
+  Serial1.begin(9600);
+  Serial3.begin(9600);
 
   // Setup servo and center
   MyServo.attach(SERVO_PWM);
@@ -34,10 +39,6 @@ void setup()
   // Sensitivity (higher is less sensitive, values are 088, 130 (default), 190, 250, 400, 470, 560, 810
   Compass.SetScale(COMPASS_SCALE_250);  
   Compass.SetOrientation(COMPASS_HORIZONTAL_X_NORTH);
-
-  Serial.begin(9600);
-  Serial1.begin(9600);
-  Serial3.begin(9600);
 
   Serial3.println("I'M ALIVE!!!");
 }
@@ -57,6 +58,12 @@ void loop()
      DZInd -= 48;  // Need to offset for some reason
   }
 
+//  // For calibrating left heading
+//  while(true)
+//  {
+//      PrintHeading();
+//  }
+  
   // Make sure looking left and set starting orientation left
   TurnLeftWithRandomOrientation();
   chasis.setLook(Left);

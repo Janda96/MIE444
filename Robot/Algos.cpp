@@ -10,7 +10,7 @@
 #include "Util.h"
 
 #define COMPASS_ADDRESS 0x21
-#define LEFT_HEADING 0.f
+#define LEFT_HEADING 250.f
 #define WALL_DETECT_DIST 150.f
 
 ErrorCode err = OK;
@@ -376,12 +376,19 @@ float angleDiff(float a1, float a2)
 void TurnLeftWithRandomOrientation()
 {
    float heading = Compass.GetHeadingDegrees();
-   while(abs(angleDiff(heading, LEFT_HEADING)) < 30.f)
+   while(abs(angleDiff(heading, LEFT_HEADING)) > 30.f)
    {
       // Turn left and take new measurement
       chasis.Turn(LEFT);
       heading = Compass.GetHeadingDegrees();
    }
+   Serial.println("POINTING LEFT");
+}
+
+void PrintHeading()
+{
+  float heading = Compass.GetHeadingDegrees();
+  Serial.println(heading);
 }
 
 void compassCalibrate()

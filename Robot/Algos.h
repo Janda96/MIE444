@@ -54,3 +54,5 @@ void TurnTowardsBlock(float searchWindowAngle);
 void TurnLeftWithRandomOrientation();
 
 void compassCalibrate();
+
+void PrintHeading();
