@@ -31,7 +31,6 @@ void GetToLZ()
           // By following the left wall
           if (isWallDetected(Dir::Right))
           {
-            Serial3.println("Following Right Wall");
             err = chasis.FollowWall(RIGHT_WALL);
           }
           else if (isWallDetected(Dir::Left))
@@ -98,6 +97,7 @@ void GetToLZ()
         {
           chasis.LostWall(RIGHT_WALL);
           chasis.FollowWall(LEFT_WALL);
+          //chasis.FollowWall(RIGHT_WALL);
         }
         else
         {

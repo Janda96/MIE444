@@ -45,10 +45,6 @@ void setup()
 
 void loop()
 {
-
-//  chasis.Turn(360.f);
-//  delay(1000);
-//  return;
   
   lcd.print(ReadBat());
 
@@ -61,6 +57,10 @@ void loop()
      DZInd = Serial3.read();
      DZInd -= 48;  // Need to offset for some reason
   }
+  
+//  chasis.Turn(360.f);
+//  delay(1000);
+//  return;
 
 //  // For calibrating left heading
 //  while(true)
@@ -69,7 +69,7 @@ void loop()
 //  }
   
   // Make sure looking left and set starting orientation left
-  TurnLeftWithRandomOrientation();
+  // TurnLeftWithRandomOrientation();
   chasis.setLook(Left);
 
   // Display in loading zone
@@ -89,7 +89,7 @@ void loop()
 
   // Roughly turn towards block
   auto look = chasis.getLook();
-  look == Up ? chasis.Turn(-150.f) : chasis.Turn(135.f);
+  look == Up ? chasis.Turn(-135.f) : chasis.Turn(135.f);
 
   lcd.clear();
   lcd.print("DRIVING TOWARDS BLOCK");

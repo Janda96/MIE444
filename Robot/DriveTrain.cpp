@@ -28,15 +28,24 @@ ErrorCode DriveTrain::FollowWall(bool isLeft)
     float wallDist = 0.f;
     while (!isObsticalDetected())
     {
-      // Control
-      wallDist = follower.getDist();
-      UpdateSpeed(wallDist, isLeft);
-
       if (wallDist > WALL_LOST_DIST)
       {
         Stop();
         return WallDisapeared;
       }
+      
+      // Control
+      wallDist = follower.getDist();
+      UpdateSpeed(wallDist, isLeft);
+
+//      if(wallDist < 30.f)
+//      {
+//        Stop();
+//        isLeft ? Turn(-5.f) : Turn(5.f);
+//        Drive(DEFAULT_SPEED, Forward);
+//        delay(50.f);
+//        Stop();
+//      }
     }
     
     Stop();
@@ -93,17 +102,17 @@ ErrorCode DriveTrain::LostWall(bool isLeft)
     // Turn to the open direction
     isLeft ? Turn(LEFT) : Turn(RIGHT);
 
-    // Drive forward to find a new wall
-    // So long as no obstacle is found
-    Drive(DEFAULT_SPEED, Forward);
-    for (auto i = 0; i < 20; ++i)
-    {
-      if (isObsticalDetected())
-      {
-        break;
-      }
-      delay(10);
-    }
+//    // Drive forward to find a new wall
+//    // So long as no obstacle is found
+//    Drive(DEFAULT_SPEED, Forward);
+//    for (auto i = 0; i < 20; ++i)
+//    {
+//      if (isObsticalDetected())
+//      {
+//        break;
+//      }
+//      delay(10);
+//    }
 
     return OK;
 }
@@ -230,7 +239,7 @@ void DriveTrain::Turn(float angle)
   int lSpeed = angle > 0 ? turnSpeed : -1 * turnSpeed;
   int rSpeed = angle > 0 ? -1 * turnSpeed : turnSpeed;
 
-  float DelayGain = angle > 0 ? 350.f : 350.f;
+  float DelayGain = angle > 0 ? 355.f : 380.f;
 
   // Turn loop
   L.drive(lSpeed);  // NOTE: Might need to adjust speeds for specific sides
