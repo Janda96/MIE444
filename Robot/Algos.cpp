@@ -317,6 +317,7 @@ void TurnTowardsBlock(float searchWindowAngle)
 void BlockPickup()
 {  
   // Turn servo down to (10) degree to touch the block
+
   for (int pos = 150; pos >= 10; --pos) 
   {
     MyServo.write(pos);
@@ -324,7 +325,7 @@ void BlockPickup()
   }
   
   // Wait for 1s before raising arm
-  delay (1000);
+  delay (2000);
   
   // Raise arm by turning servo up to (130) degree to lift block
   for (int pos = 10; pos <=  80; ++pos) 

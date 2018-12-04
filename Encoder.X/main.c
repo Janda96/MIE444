@@ -33,9 +33,9 @@
 #define GIE INTCONbits.GIE
 #define PEIE INTCONbits.PEIE
 
-#define D_STEP 0.05984862909
+#define D_STEP 0.05521688159
 
-#define WB 18.2
+#define WB 16.4
 
 #define TX_BUF_SIZE 32
 
