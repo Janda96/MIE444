@@ -2,6 +2,7 @@
 
 // Standard Includes
 #include <Servo.h>
+#include <Wire.h>
 
 // Custom Includes
 #include "Types.h"
@@ -18,14 +19,26 @@ ErrorCode errMain = OK;
 void setup()
 {
   lcd.begin(20, 4);
-
-  // Setup servo and center
-  MyServo.attach(SERVO_PWM);
-  MyServo.write(0.f);
-
+  Wire.begin();
   Serial.begin(9600);
   Serial1.begin(9600);
   Serial3.begin(9600);
+
+  // Setup servo and center
+  MyServo.attach(SERVO_PWM);
+  MyServo.write(150.f);
+
+  // Compass calibration 
+  // (Uncomment when needed, only has to be done once and takes 15 seconds)
+  // compassCalibrate();
+
+  // Compas setup
+  Compass.SetDeclination(-10, 26, 'W');  
+  Compass.SetSamplingMode(COMPASS_SINGLE);
+  
+  // Sensitivity (higher is less sensitive, values are 088, 130 (default), 190, 250, 400, 470, 560, 810
+  Compass.SetScale(COMPASS_SCALE_250);  
+  Compass.SetOrientation(COMPASS_HORIZONTAL_X_NORTH);
 
   Serial3.println("I'M ALIVE!!!");
 }
@@ -44,6 +57,20 @@ void loop()
      DZInd = Serial3.read();
      DZInd -= 48;  // Need to offset for some reason
   }
+  
+//  chasis.Turn(360.f);
+//  delay(1000);
+//  return;
+
+//  // For calibrating left heading
+//  while(true)
+//  {
+//      PrintHeading();
+//  }
+  
+  // Make sure looking left and set starting orientation left
+  // TurnLeftWithRandomOrientation();
+  chasis.setLook(Left);
 
   // Display in loading zone
   lcd.clear();
@@ -55,14 +82,14 @@ void loop()
   // Display in loading zone
   lcd.clear();
   lcd.print("IN LOADING ZONE");
-  delay(5000);
+  delay(1000);
 
   lcd.clear();
   lcd.print("TURNING TOWARDS BLOCK");
 
   // Roughly turn towards block
   auto look = chasis.getLook();
-  look == Up ? chasis.Turn(-150.f) : chasis.Turn(135.f);
+  look == Up ? chasis.Turn(-135.f) : chasis.Turn(135.f);
 
   lcd.clear();
   lcd.print("DRIVING TOWARDS BLOCK");
@@ -117,5 +144,11 @@ void loop()
   delay(1000);
   
   // STOP
-  while(true);
+  DZInd = -10;
+  while(DZInd != 0)
+  {
+     while(!Serial3.available());
+     DZInd = Serial3.read();
+     DZInd -= 48;  // Need to offset for some reason
+  }
 }

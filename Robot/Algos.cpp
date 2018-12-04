@@ -1,6 +1,7 @@
 #include "Algos.h"
 
 // Standard Includes
+#include <Wire.h>
 
 // Custom Includes
 #include "Arduino.h"
@@ -8,6 +9,8 @@
 #include "Types.h"
 #include "Util.h"
 
+#define COMPASS_ADDRESS 0x21
+#define LEFT_HEADING 17.f
 #define WALL_DETECT_DIST 150.f
 
 ErrorCode err = OK;
@@ -28,7 +31,6 @@ void GetToLZ()
           // By following the left wall
           if (isWallDetected(Dir::Right))
           {
-            Serial3.println("Following Right Wall");
             err = chasis.FollowWall(RIGHT_WALL);
           }
           else if (isWallDetected(Dir::Left))
@@ -95,6 +97,7 @@ void GetToLZ()
         {
           chasis.LostWall(RIGHT_WALL);
           chasis.FollowWall(LEFT_WALL);
+          //chasis.FollowWall(RIGHT_WALL);
         }
         else
         {
@@ -314,20 +317,21 @@ void TurnTowardsBlock(float searchWindowAngle)
 void BlockPickup()
 {  
   // Turn servo down to (10) degree to touch the block
-  for (int pos = 80; pos >= 5; --pos) 
+
+  for (int pos = 150; pos >= 10; --pos) 
   {
     MyServo.write(pos);
-    delay(10);
+    delay(5);
   }
   
   // Wait for 1s before raising arm
   delay (2000);
   
   // Raise arm by turning servo up to (130) degree to lift block
-  for (int pos = 5; pos <=  80; ++pos) 
+  for (int pos = 10; pos <=  80; ++pos) 
   {
     MyServo.write(pos);
-    delay(10);
+    delay(5);
   }
 }
 
@@ -337,7 +341,7 @@ void BlockDropoff()
     for (pos; pos <= 150; ++pos) 
     {
       MyServo.write(pos);
-      delay(10);
+      delay(5);
     }
 }
 
@@ -363,6 +367,48 @@ void RemoteControl()
       }
     }
   }
+}
+
+float angleDiff(float a1, float a2)
+{
+  return 180 - abs(abs(a1 - a2) - 180); 
+}
+
+void TurnLeftWithRandomOrientation()
+{
+   float heading = Compass.GetHeadingDegrees();
+   while(abs(angleDiff(heading, LEFT_HEADING)) > 30.f)
+   {
+      // Turn left and take new measurement
+      chasis.Turn(LEFT);
+      heading = Compass.GetHeadingDegrees();
+   }
+}
+
+void PrintHeading()
+{
+  float heading = Compass.GetHeadingDegrees();
+  Serial3.println(heading);
+}
+
+void compassCalibrate()
+{
+  Serial3.println("Calibration Mode");
+  delay(1000);  //1 second before starting
+  Serial3.println("Start");
+
+  Wire.beginTransmission(COMPASS_ADDRESS);
+  Wire.write(0x43);
+  Wire.endTransmission();
+  for(int i=0;i<15;i++)  //15 seconds
+  {       
+    Serial3.println(i);
+    delay(1000);
+  }
+  Wire.beginTransmission(COMPASS_ADDRESS);
+  Wire.write(0x45);
+  Wire.endTransmission();
+  Serial3.println("done");
 }
 
 bool isWallDetected(Dir sensorDir)

@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <LiquidCrystal.h>
 #include <Servo.h>
+#include <HMC5883L_Simple.h>
 
 // Custom Includes
 #include "DriveTrain.h"
@@ -23,3 +24,5 @@ extern IRDist IRD;
 
 // Servo
 extern Servo MyServo;
+
+extern HMC5883L_Simple Compass;

@@ -18,7 +18,7 @@ float UltraSonic::getDist()
   auto echoTime = sonar.ping_median(3);
   if (echoTime == 0)
   {
-    return 900.f;
+    return 160.f;
   }
   else
   {

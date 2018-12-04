@@ -38,3 +38,6 @@ DriveTrain chasis(leftMotor, rightMotor, US);
 
 //Servo
 Servo MyServo;
+
+// Create a compass
+HMC5883L_Simple Compass;
